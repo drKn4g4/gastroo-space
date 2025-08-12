@@ -1,0 +1,12 @@
+specVersion: "v1"
+serviceId: "gastroo-space"
+location: "europe-central2"
+schema:
+  source: "./schema"
+  datasource:
+    postgresql:
+      database: "fdcdb"
+      cloudSql:
+        instanceId: "gastroo-space-fdc"
+      # schemaValidation: "COMPATIBLE"
+connectorDirs: ["./connector"]
