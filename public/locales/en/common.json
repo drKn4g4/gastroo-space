@@ -1,0 +1,50 @@
+{
+  "nav": {
+    "offer": "Offer",
+    "demo": "Demo",
+    "login": "Log in",
+    "dashboard": "Dashboard",
+    "logout": "Log out"
+  },
+  "hero": {
+    "title": "Your restaurant management cockpit.",
+    "subtitle": "Save time and money by managing your Google profile, reservations, QR menu, and team schedule from one simple dashboard.",
+    "cta_demo": "See Demo",
+    "cta_offer": "See Offer"
+  },
+  "offer": {
+    "title": "Choose the perfect plan for your venue",
+    "price_per_month": "per month",
+    "cta_choose": "Choose Plan",
+    "packages": {
+      "packages": {
+        "visibility": {
+          "name": "Visibility",
+          "price": "11.11 EUR",
+          "description": "Manage your Google Business Profile."
+        },
+        "reservations": {
+          "name": "Reservations",
+          "price": "11.11 EUR",
+          "description": "Integrate reservations with your calendar."
+        },
+        "team": {
+          "name": "Team",
+          "price": "11.11 EUR",
+          "description": "Create schedules and manage staff."
+        },
+        "qr": {
+          "name": "QR Menu",
+          "price": "11.11 EUR",
+          "description": "A dynamic, digital menu for your guests."
+        },
+        "max": {
+          "name": "MAX",
+          "price": "33.33 EUR",
+          "subheader": "All in one!",
+          "description": "Full access to all modules for a lower price."
+          }
+        }
+      }
+    }
+  }

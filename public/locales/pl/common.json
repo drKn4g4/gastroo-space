@@ -1,0 +1,48 @@
+{
+  "nav": {
+    "offer": "Oferta",
+    "demo": "Demo",
+    "login": "Zaloguj się",
+    "dashboard": "Panel",
+    "logout": "Wyloguj się"
+  },
+  "hero": {
+    "title": "Twój pilot do zarządzania restauracją.",
+    "subtitle": "Oszczędzaj czas i pieniądze, zarządzając profilem w Google, rezerwacjami, menu QR i grafikiem zespołu z jednego, prostego panelu.",
+    "cta_demo": "Zobacz Demo",
+    "cta_offer": "Zobacz Ofertę"
+  },
+  "offer": {
+    "title": "Wybierz plan idealny dla Twojego lokalu",
+    "price_per_month": "miesięcznie",
+    "cta_choose": "Wybieram",
+    "packages": {
+      "visibility": {
+        "name": "Widoczność",
+        "price": "33.33 PLN",
+        "description": "Zarządzanie wizytówką w Google."
+      },
+      "reservations": {
+        "name": "Rezerwacje",
+        "price": "33.33 PLN",
+        "description": "Integracja rezerwacji z kalendarzem."
+      },
+      "team": {
+        "name": "Zespół",
+        "price": "33.33 PLN",
+        "description": "Tworzenie grafików i zarządzanie personelem."
+      },
+      "qr": {
+        "name": "Menu QR",
+        "price": "33.33 PLN",
+        "description": "Dynamiczne, cyfrowe menu dla gości."
+      },
+      "max": {
+        "name": "MAX",
+        "price": "99.99 PLN",
+        "subheader": "Wszystko w jednym!",
+        "description": "Pełen dostęp do wszystkich modułów w niższej cenie."
+      }
+    }
+  }
+}
