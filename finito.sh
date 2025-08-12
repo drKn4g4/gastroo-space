@@ -18,7 +18,7 @@ git commit -m "$COMMIT_MESSAGE"
 echo "- Zmiany zatwierdzone z wiadomością: '$COMMIT_MESSAGE'"
 
 # 4. Wypchnij zmiany na zdalne repozytorium
-git push
+ git push --set-upstream origin main
 echo "- Zmiany wysłane na serwer."
 
 echo "✅ Gotowe! Miłego dnia."
