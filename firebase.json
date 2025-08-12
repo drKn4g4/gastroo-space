@@ -1,9 +1,6 @@
 {
-  "emulators": {
-    "dataconnect": {
-      "dataDir": "dataconnect/.dataconnect/pgliteData",
-      "port": 9399
-    },
+  "emulators": 
+    {
     "apphosting": {
       "port": 5002,
       "rootDirectory": "./",
@@ -41,9 +38,7 @@
     },
     "singleProjectMode": true
   },
-  "dataconnect": {
-    "source": "dataconnect"
-  },
+  
   "firestore": {
     "database": "(default)",
     "location": "eur3",
