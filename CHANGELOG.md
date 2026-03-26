@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.5] - 2026-03-26
+
+### Changed
+- Automated deploy release for production (gcp)
+- CI run: 3, commit: 07932cf
 ## [0.1.4] - 2026-03-26
 
 ### Changed
