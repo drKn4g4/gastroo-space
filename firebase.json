@@ -1,21 +1,4 @@
 {
-  "hosting": [
-    {
-      "target": "prod",
-      "public": "public-static",
-      "ignore": [
-        "firebase.json",
-        "**/.*",
-        "**/node_modules/**"
-      ],
-      "rewrites": [
-        {
-          "source": "**",
-          "destination": "/index.html"
-        }
-      ]
-    }
-  ],
   "functions": {
     "source": "functions",
     "codebase": "default",
@@ -27,7 +10,10 @@
       ".git",
       "firebase-debug.log",
       "firebase-debug.*.log",
-      "*.local"
+      "*.local",
+      "firebase-debug.log",
+      "firebase-debug.*.log",
+      ".runtimeconfig.json"
     ]
   },
   "apphosting": {
@@ -39,29 +25,51 @@
       "firebase-debug.log",
       "firebase-debug.*.log",
       "functions"
-    ]
+    ],
+    "alwaysDeployFromSource": true
   },
   "firestore": {
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
   },
   "storage": {
-    "rules": "storage.rules"
+    "rules": "storage.rules",
+    "bucket": "gastroo-4f0a3.firebasestorage.app"
   },
   "database": {
     "rules": "database.rules.json"
   },
   "emulators": {
-    "auth": { "port": 9099 },
-    "functions": { "port": 5001 },
-    "firestore": { "port": 8080 },
-    "database": { "port": 9000 },
-    "hosting": { "port": 5000 },
-    "pubsub": { "port": 8085 },
-    "storage": { "port": 9199 },
-    "eventarc": { "port": 9299 },
-    "tasks": { "port": 9499 },
-    "dataconnect": { "port": 5500 },
+    "auth": {
+      "port": 9099
+    },
+    "functions": {
+      "port": 5001
+    },
+    "firestore": {
+      "port": 8080
+    },
+    "database": {
+      "port": 9000
+    },
+    "hosting": {
+      "port": 5000
+    },
+    "pubsub": {
+      "port": 8085
+    },
+    "storage": {
+      "port": 9199
+    },
+    "eventarc": {
+      "port": 9299
+    },
+    "tasks": {
+      "port": 9499
+    },
+    "dataconnect": {
+      "port": 5500
+    },
     "apphosting": {
       "port": 5202,
       "rootDirectory": "./",

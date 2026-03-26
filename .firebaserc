@@ -1,17 +1,5 @@
 {
   "projects": {
     "default": "gastroo-4f0a3"
-  },
-  "targets": {
-    "gastroo-4f0a3": {
-      "hosting": {
-        "prod": [
-          "gastroo-4f0a3"
-        ],
-        "dev": [
-          "dev-gastroo-space"
-        ]
-      }
-    }
   }
 }

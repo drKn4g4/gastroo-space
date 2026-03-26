@@ -28,7 +28,6 @@
     "lint:fix": "next lint --fix",
     "lint:px": "node scripts/check-no-px.mjs",
     "deploy:firebase": "bash scripts/deploy-firebase.sh",
-    "deploy:hosting:prod": "firebase deploy --only hosting:prod",
     "deploy:local": "bash scripts/deploy-local.sh",
     "deploy:env:check": "bash scripts/validate-deploy-env.sh --strict",
     "deploy:smoke": "bash scripts/smoke-postdeploy.sh",
