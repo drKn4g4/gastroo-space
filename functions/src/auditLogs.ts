@@ -1,138 +1,147 @@
 import { HttpsError, onCall } from "firebase-functions/v2/https";
 import { onDocumentWritten } from "firebase-functions/v2/firestore";
 import * as logger from "firebase-functions/logger";
-import { admin } from "./firebaseAdmin";
+import { getFirestore, FieldValue } from "firebase-admin/firestore";
 
-// Definiujemy stałą dla regionu, aby łatwo było ją zmienić w przyszłości
+/**
+ * Konfiguracja globalna dla modułu
+ */
 const REGION = "europe-west1";
-
-interface LogOrganizationAccessPayload {
-  orgId?: unknown;
-  restaurantId?: unknown;
-}
-
 const ORG_ACCESS_LOG_THROTTLE_MS = 5 * 60 * 1000;
 
-// --- REFAKTOR onCall (v2) ---
-export const logOrganizationAccess = onCall({
+interface LogAccessRequest {
+  orgId: string;
+  restaurantId?: string;
+}
+
+// Pomocnicza funkcja do pobierania bazy (modular SDK style)
+const db = getFirestore();
+
+/**
+ * --- logOrganizationAccess (v2) ---
+ * Loguje dostęp do organizacji z throttlingiem 5-minutowym per użytkownik.
+ */
+export const logOrganizationAccess = onCall<LogAccessRequest>({
   region: REGION,
-  maxInstances: 10
+  maxInstances: 10,
+  // Secrets: [] // Tu dodaj klucze API jeśli będziesz ich potrzebował
 }, async (request) => {
-  if (!request.auth) {
-    throw new HttpsError("unauthenticated", "Authentication required.");
+  const { auth, data } = request;
+
+  if (!auth) {
+    throw new HttpsError("unauthenticated", "Musisz być zalogowany.");
   }
 
-  const { orgId, restaurantId } = request.data as LogOrganizationAccessPayload;
-
-  if (typeof orgId !== "string" || !orgId) {
-    throw new HttpsError("invalid-argument", "orgId is required.");
+  const { orgId, restaurantId } = data;
+  if (!orgId) {
+    throw new HttpsError("invalid-argument", "Brak identyfikatora organizacji (orgId).");
   }
 
-  const callerUid = request.auth.uid;
+  const callerUid = auth.uid;
 
+  // 1. Sprawdzenie uprawnień (Parallel reads)
   const [membershipSnap, legacyMemberSnap] = await Promise.all([
-    admin.firestore().doc(`users/${callerUid}/memberships/${orgId}`).get(),
-    admin.firestore().doc(`organizations/${orgId}/members/${callerUid}`).get(),
+    db.doc(`users/${callerUid}/memberships/${orgId}`).get(),
+    db.doc(`organizations/${orgId}/members/${callerUid}`).get(),
   ]);
 
-  const membershipData = membershipSnap.exists ? membershipSnap.data() : undefined;
-  const legacyData = legacyMemberSnap.exists ? legacyMemberSnap.data() : undefined;
-
-  const role =
-    (membershipData?.status === "active" ? membershipData.role : undefined) ??
-    legacyData?.role;
+  const role = 
+    (membershipSnap.data()?.status === "active" ? membershipSnap.data()?.role : undefined) || 
+    legacyMemberSnap.data()?.role;
 
   if (!role) {
-    throw new HttpsError("permission-denied", "Caller is not an active org member.");
+    throw new HttpsError("permission-denied", "Brak aktywnego członkostwa w organizacji.");
   }
 
-  const throttleRef = admin
-    .firestore()
-    .doc(`organizations/${orgId}/accessLogs/${callerUid}`);
-
+  // 2. Obsługa throttlingu w transakcji
+  const throttleRef = db.doc(`organizations/${orgId}/accessLogs/${callerUid}`);
   const now = Date.now();
   let shouldCreateLog = true;
 
-  await admin.firestore().runTransaction(async (txn) => {
+  await db.runTransaction(async (txn) => {
     const throttleSnap = await txn.get(throttleRef);
-    const lastAt = throttleSnap.data()?.lastLoggedAt?.toMillis?.() as number | undefined;
+    const lastLoggedAt = throttleSnap.data()?.lastLoggedAt?.toMillis?.();
 
-    if (typeof lastAt === "number" && now - lastAt < ORG_ACCESS_LOG_THROTTLE_MS) {
+    if (lastLoggedAt && (now - lastLoggedAt < ORG_ACCESS_LOG_THROTTLE_MS)) {
       shouldCreateLog = false;
       return;
     }
 
-    txn.set(
-      throttleRef,
-      {
-        uid: callerUid,
-        orgId,
-        role,
-        lastRestaurantId: typeof restaurantId === "string" ? restaurantId : null,
-        lastLoggedAt: admin.firestore.FieldValue.serverTimestamp(),
-      },
-      { merge: true },
-    );
+    txn.set(throttleRef, {
+      uid: callerUid,
+      orgId,
+      role,
+      lastRestaurantId: restaurantId || null,
+      lastLoggedAt: FieldValue.serverTimestamp(),
+    }, { merge: true });
   });
 
   if (!shouldCreateLog) {
     return { success: true, throttled: true };
   }
 
-  await admin.firestore().collection(`organizations/${orgId}/logs`).add({
+  // 3. Zapis właściwego logu audytowego
+  await db.collection(`organizations/${orgId}/logs`).add({
     orgId,
     action: "auth.organization.accessed",
     source: "functions.logOrganizationAccess",
     actorUid: callerUid,
     actorRole: role,
-    restaurantId: typeof restaurantId === "string" ? restaurantId : null,
-    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    restaurantId: restaurantId || null,
+    createdAt: FieldValue.serverTimestamp(),
   });
 
   return { success: true, throttled: false };
 });
 
-// --- REFAKTOR onDocumentWritten (v2 + Eventarc Fix) ---
+/**
+ * --- onFavoriteRestaurantAudit (v2) ---
+ * Reaguje na dodanie/usunięcie ulubionej restauracji.
+ */
 export const onFavoriteRestaurantAudit = onDocumentWritten({
   document: "users/{uid}/favoriteRestaurants/{restaurantId}",
-  region: REGION, // KLUCZOWE: zrównanie z regionem Firestore (eur3 -> europe-west1)
+  region: REGION,
 }, async (event) => {
+  const { uid, restaurantId } = event.params;
+  const change = event.data;
+
+  if (!change) {
+    logger.warn("Brak danych w zdarzeniu (event.data is undefined)");
+    return;
+  }
+
+  const isAdded = !change.before.exists && change.after.exists;
+  const isRemoved = change.before.exists && !change.after.exists;
+
+  // Jeśli to tylko update (np. zmiana nazwy, a nie dodanie/usunięcie), ignorujemy
+  if (!isAdded && !isRemoved) return;
+
   try {
-    const uid = event.params.uid;
-    const restaurantId = event.params.restaurantId;
-    const before = event.data?.before;
-    const after = event.data?.after;
+    const docData = (isAdded ? change.after.data() : change.before.data()) || {};
+    const orgId = docData.organizationId;
 
-    const beforeExists = before?.exists ?? false;
-    const afterExists = after?.exists ?? false;
-
-    if (beforeExists === afterExists) {
+    if (!orgId || typeof orgId !== "string") {
+      logger.debug(`Pominięto log: brak organizationId dla restauracji ${restaurantId}`);
       return;
     }
 
-    const docData = (afterExists ? after?.data() : before?.data()) ?? {};
-    const orgId = typeof docData.organizationId === "string" ? docData.organizationId : "";
-
-    if (!orgId) {
-      return;
-    }
-
-    await admin.firestore().collection(`organizations/${orgId}/logs`).add({
+    await db.collection(`organizations/${orgId}/logs`).add({
       orgId,
-      action: afterExists ? "favorites.restaurant.added" : "favorites.restaurant.removed",
+      action: isAdded ? "favorites.restaurant.added" : "favorites.restaurant.removed",
       source: "functions.onFavoriteRestaurantAudit",
       actorUid: uid,
       actorRole: "consumer",
       targetUid: uid,
       restaurantId,
-      restaurantName: typeof docData.restaurantName === "string" ? docData.restaurantName : null,
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      restaurantName: docData.restaurantName || null,
+      createdAt: FieldValue.serverTimestamp(),
     });
-  } catch (error) {
-    logger.error("onFavoriteRestaurantAudit failed", {
-      error: error instanceof Error ? error.message : String(error),
-      stack: error instanceof Error ? error.stack : undefined,
-      params: event.params,
+
+  } catch (err) {
+    logger.error("Błąd audytu ulubionych", {
+      message: err instanceof Error ? err.message : "Unknown error",
+      uid,
+      restaurantId
     });
   }
 });
