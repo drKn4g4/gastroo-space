@@ -37,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       target_env: ${{ steps.resolve.outputs.target_env }}
-      gcp_alias: ${{ steps.resolve.outputs.gcp_alias }}
+      gcp_project: ${{ steps.resolve.outputs.gcp_project }}
       app_base_url: ${{ steps.resolve.outputs.app_base_url }}
     steps:
       - id: resolve
@@ -49,16 +49,18 @@ jobs:
             TARGET_ENV="staging"
           fi
 
+          # Project ID is always the same — environment distinction is for
+          # App Hosting rollout targets and smoke test URLs.
+          GCP_PROJECT="gastroo-4f0a3"
+
           if [[ "$TARGET_ENV" == "production" ]]; then
-            GCP_ALIAS="production"
             APP_BASE_URL="${{ secrets.APP_BASE_URL_PRODUCTION }}"
           else
-            GCP_ALIAS="staging"
             APP_BASE_URL="${{ secrets.APP_BASE_URL_STAGING }}"
           fi
 
           echo "target_env=$TARGET_ENV" >> "$GITHUB_OUTPUT"
-          echo "gcp_alias=$GCP_ALIAS" >> "$GITHUB_OUTPUT"
+          echo "gcp_project=$GCP_PROJECT" >> "$GITHUB_OUTPUT"
           echo "app_base_url=$APP_BASE_URL" >> "$GITHUB_OUTPUT"
 
   release-version-and-changelog:
@@ -165,9 +167,9 @@ jobs:
         shell: bash
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.skip_apphosting }}" == "true" ]]; then
-            bash scripts/deploy-firebase.sh --project "${{ needs.resolve-target.outputs.gcp_alias }}" --skip-apphosting
+            bash scripts/deploy-firebase.sh --project "${{ needs.resolve-target.outputs.gcp_project }}" --skip-apphosting
           else
-            bash scripts/deploy-firebase.sh --project "${{ needs.resolve-target.outputs.gcp_alias }}"
+            bash scripts/deploy-firebase.sh --project "${{ needs.resolve-target.outputs.gcp_project }}"
           fi
 
       - name: Post-deploy smoke tests

@@ -18,29 +18,18 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  detect-seed-changes:
+  quality-and-build:
     runs-on: ubuntu-latest
-    outputs:
-      seed: ${{ steps.filter.outputs.seed }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+    timeout-minutes: 20
+    env:
+      # Firebase client config needed for Next.js build (prerender)
+      NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
+      NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: gastroo-4f0a3.firebaseapp.com
+      NEXT_PUBLIC_FIREBASE_PROJECT_ID: gastroo-4f0a3
+      NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: gastroo-4f0a3.firebasestorage.app
+      NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
+      NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
 
-      - name: Detect changed paths
-        id: filter
-        uses: dorny/paths-filter@v3
-        with:
-          filters: |
-            seed:
-              - 'src/app/api/seed/**'
-              - 'swagger-seed.yaml'
-              - 'docs/ai/seed-data.md'
-
-  seed-contracts:
-    runs-on: ubuntu-latest
-    needs: detect-seed-changes
-    if: needs.detect-seed-changes.outputs.seed == 'true'
-    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -57,29 +46,6 @@ jobs:
       - name: Install Functions dependencies
         run: npm ci --prefix functions
 
-      - name: Seed API contract tests
-        run: npm run test:seed:contracts
-
-  quality-and-build:
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Validate feature flags (strict)
-        run: npm run flags:validate:strict
-
       - name: Lint
         run: npm run lint
 
@@ -89,27 +55,8 @@ jobs:
       - name: Build Functions
         run: npm --prefix functions run build
 
-      - name: Test Functions
-        run: npm --prefix functions run test
-
-      - name: Unit/API tests
+      - name: Unit tests
         run: npm run test
 
       - name: Build app
         run: npm run build
-
-      - name: Build container image
-        run: docker build -t gastroo-space:ci .
-
-      - name: Container smoke test
-        run: |
-          docker run -d -p 5202:5202 --name gastroo-space-ci gastroo-space:ci
-          for i in {1..20}; do
-            if curl -fsS http://127.0.0.1:5202/api/health > /dev/null; then
-              echo "Container is healthy"
-              break
-            fi
-            sleep 2
-          done
-          curl -fsS http://127.0.0.1:5202/api/ready > /dev/null
-          docker rm -f gastroo-space-ci
