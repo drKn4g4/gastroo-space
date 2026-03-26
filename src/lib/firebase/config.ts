@@ -60,12 +60,25 @@ type FirebaseGlobals = {
 const isBrowser = typeof window !== 'undefined';
 const useEmulators = process.env.NEXT_PUBLIC_USE_EMULATORS === 'true';
 
+// Guard: skip Firebase init when API key is missing (e.g. during Next.js build/prerender).
+// This prevents `auth/invalid-api-key` crashes in CI/Cloud Build where client env vars
+// may not be available at static generation time.
+const hasFirebaseConfig = Boolean(firebaseConfig.apiKey);
+
 let app: FirebaseApp;
 let db: Firestore;
 let auth: Auth;
 let storage: FirebaseStorage;
 
-if (process.env.NODE_ENV === 'development') {
+if (!hasFirebaseConfig) {
+  // Build-time stub: Firebase SDK is not initialized.
+  // Any runtime code path that actually needs Firebase will hit this only during
+  // static prerender — client components re-initialize on hydration with real config.
+  app = {} as FirebaseApp;
+  db = {} as Firestore;
+  auth = {} as Auth;
+  storage = {} as FirebaseStorage;
+} else if (process.env.NODE_ENV === 'development') {
   const g = globalThis as typeof globalThis & FirebaseGlobals;
   if (!g.__firebase_app) {
     // When switching between emulator/prod configs, stale persisted Auth state can trigger

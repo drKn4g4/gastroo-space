@@ -14,7 +14,6 @@ import RootRouter from "./components/RootRouter";
 import SlotZeroBanner from "./components/SlotZeroBanner";
 import SessionDashboard from "./components/SessionDashboard";
 import DevSessionDiagnostics from "./components/DevSessionDiagnostics";
-import { activeLanguages } from "@/lib/i18n/settings";
 
 export const metadata: Metadata = {
   applicationName: 'Gastroo Space',
@@ -42,9 +41,10 @@ export const viewport: Viewport = {
   ],
 };
 
-export async function generateStaticParams() {
-  return activeLanguages.map((lng) => ({ lang: lng }));
-}
+// All pages under [lang] require auth context (Firebase client SDK) — disable static prerender.
+// This prevents build-time `auth/invalid-api-key` errors and is correct because every
+// meaningful page is behind authentication anyway.
+export const dynamic = 'force-dynamic';
 
 export default async function RootLayout({
   children,

@@ -28,6 +28,32 @@ env:
     value: "false"
     availability: [BUILD, RUNTIME]
 
+  # ── Firebase Client Config ─────────────────────────────────────────────
+  # Wymagane podczas BUILD (Next.js prerender) i RUNTIME (client SDK)
+  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+    secret: NEXT_PUBLIC_FIREBASE_API_KEY
+    availability: [BUILD, RUNTIME]
+
+  - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    value: gastroo-4f0a3.firebaseapp.com
+    availability: [BUILD, RUNTIME]
+
+  - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    value: gastroo-4f0a3
+    availability: [BUILD, RUNTIME]
+
+  - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+    value: gastroo-4f0a3.firebasestorage.app
+    availability: [BUILD, RUNTIME]
+
+  - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+    secret: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+    availability: [BUILD, RUNTIME]
+
+  - variable: NEXT_PUBLIC_FIREBASE_APP_ID
+    secret: NEXT_PUBLIC_FIREBASE_APP_ID
+    availability: [BUILD, RUNTIME]
+
   # ── Feature Flags ───────────────────────────────────────────────────────
   # Flagi dostępne podczas budowania (Static Site Generation potrzebuje ich)
   - variable: NEXT_PUBLIC_FEATURE_GOOGLE_CHAT

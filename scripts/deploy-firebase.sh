@@ -68,7 +68,13 @@ if [ -f ".env.production" ]; then
   log_ok "Załadowano .env.production"
 fi
 
-DEFAULT_ONLY="functions,firestore,storage,database,remoteconfig"
+# Deploy targets:
+#   - hosting:prod       → gastroo.space (static site from /public-static)
+#   - functions          → Cloud Functions
+#   - firestore/storage  → Security rules + indexes
+#   - remoteconfig       → Remote config template
+# App Hosting (dev.gastroo.space) is deployed separately via apphosting backend.
+DEFAULT_ONLY="hosting:prod,functions,firestore,storage,database,remoteconfig"
 
 log_stage "Deploy zasobów Firebase"
 if [[ -n "$ONLY_TARGETS" ]]; then

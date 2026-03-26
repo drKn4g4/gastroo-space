@@ -34,7 +34,7 @@ jobs:
             seed:
               - 'src/app/api/seed/**'
               - 'swagger-seed.yaml'
-              - 'docs/ai/SEED_DATA.md'
+              - 'docs/ai/seed-data.md'
 
   seed-contracts:
     runs-on: ubuntu-latest
