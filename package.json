@@ -56,6 +56,7 @@
     "@mui/material": "^7.3.9",
     "@stripe/stripe-js": "^8.11.0",
     "@vis.gl/react-google-maps": "^1.7.1",
+    "@vitejs/plugin-react": "^6.0.1",
     "date-fns": "^4.1.0",
     "dotenv": "^17.3.1",
     "firebase": "^12.10.0",
@@ -92,6 +93,6 @@
     "prettier": "^3.5.0",
     "tsx": "^4.21.0",
     "typescript": "^5.7.0",
-    "vitest": "^4.1.0"
+    "vitest": "^4.1.2"
   }
 }

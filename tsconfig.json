@@ -22,7 +22,7 @@
       }
     ],
     "types": [
-      "vitest/globals"
+     
     ],
     "paths": {
       "@/*": [
@@ -40,6 +40,9 @@
     ".next/dev/dev/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "vitest.config.ts",
+    "**/*.test.ts",
+    "**/*.test.tsx"
   ]
 }
