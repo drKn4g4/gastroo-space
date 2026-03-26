@@ -114,15 +114,17 @@ Feature flagi znajdziesz w pliku `.env.flags.example`.
 
 ## Kluczowe pliki dokumentacji
 
-- docs/project-documentation.md - glowna dokumentacja projektowa (punkt startowy)
-- AGENTS.md - zasady pracy i kontekst architektury dla agentow
+- CLAUDE.md - instrukcje dla agentow AI (single source of truth)
+- TOKENS.md - design tokens (UI system + T system + unit helpers)
+- EMULATORS.md - Firebase emulators (porty, konfiguracja, troubleshooting)
 - CHANGELOG.md - historia zmian
+- docs/project-documentation.md - glowna dokumentacja projektowa
+- docs/technical-standards.md - standardy techniczne (NFR, style, scaling, PWA)
+- docs/env-driven-runtime.md - runtime oparty o env, profile flag i guard
 - docs/production-readiness-checklist.md - checklista gotowosci produkcyjnej
 - docs/google-integration-contracts.md - kontrakty danych dla integracji Google
 - docs/scalability-and-containerization.md - strategia skalowania i konteneryzacji
-- docs/env-driven-runtime.md - runtime oparty o env, profile flag i guard
-- docs/technical-standards.md - standardy techniczne (NFR, style, h/v scaling, responsive PWA)
-- docs/ai/README.md - archiwum roboczych dokumentow AI
+- docs/ai/ - materialy robocze AI (API reference, seed data, backlog)
 
 ## Konwencja dokumentacji
 

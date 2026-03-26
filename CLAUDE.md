@@ -1,72 +1,169 @@
-# CLAUDE.md — gastroo.space (Master AI AI-Instructions)
+# CLAUDE.md — gastroo.space
 
-Poniższy dokument stanowi absolutną i kompletną bazę wiedzy dla agentów AI pracujących przy tym projekcie (wliczając wiedzę z `AGENTS`, `TOKENS`, i całego drzewa `docs/`). Oczekuje się natychmiastowego stosowania do tych rygorów.
-
----
-
-## 1. 🔄 Workflow & Sprinty (KRYTYCZNE)
-### Aktualizowanie Postępów (CHANGELOG.md & Backlog)
-Jako asystent AI pracujący w tym środowisku, każda Twoja interakcja techniczna i modyfikacja bazy kodu musi być traktowana jako "Sprint". 
-- Po wykonaniu kluczowych poleceń, refaktoryzacji baz danych, lub zakodowaniu feature'ów masz **obowiązek** udać się do `CHANGELOG.md` na głównym poziomie repozytorium i zaktualizować tam listę zrealizowanych zadań z informacją co, jak i dlaczego dodałeś w danej sesji (z podziałem na np. "Sprint 5: Zmiany w UI i Testy CSS").
-- Obowiązkowo powiel i aktualizuj także listę nadchodzących zadań (Backlog) np. w plikach z katalogu `docs/ai/audit-fixes-todo.md`.
-
-### Systematyzowanie Commitów 
-Podczas zapisywania kodu do Git należy trzymać się notacji (np. Conventional Commits):
-- `feat:` nowa funkcjonalność.
-- `fix:` poprawka.
-- `chore:` modyfikacja narzędzi deweloperskich, konfiguracji lub plików `docs/*` / `CLAUDE.md`.
-- `refactor:` przepisywanie logiki, wyrzucanie hardkodowanych px. 
-**Opis commita musi podsumowywać w 5-6 słowach zakres zmienionego kodu.**
+Instrukcje dla agentów AI. Stosuj natychmiast i bezwzględnie.
 
 ---
 
-## 2. 🚀 Środowisko: Deploys & Emulatory
+## 1. Projekt
 
-### Praca Lokacyjna (Emulatory i Seedy)
-Aplikacja jest silnie Env-Driven. Należy uruchamiać ją zawsze przez emulatory, dbając o odseparowane środowisko danych:
-- Odpal emulatory + server Next.js: `npm run dev:start` (komenda uruchamia m.in. flagę `START_DEV_USE_APPHOSTING`).
-- Obowiązkowo po starcie wypełniaj bazę (Seed) atrapą danych za pomocą: `npm run seed:unified`. Generuje ona predefiniowane uprawnienia: Organizacje, Właściciela (test-owner) i logi. Wszelkie API testuj właśnie na tych kontach (odnosząc się ustrukturyzowaniem zapisu do np. `orgId`).
+**gastroo.space** — platforma SaaS dla gastronomii: panel właściciela (B2B), miniPOS dla obsługi, aplikacja konsumencka (B2C). Stack: Next.js (App Router), React, MUI, Firebase (Auth/Firestore/Storage/Functions), i18next (pl/en).
 
-### Systematic Deploy do Firebase
-Gdy Agent upewni się, że kod przeszedł przez testy i weryfikację flag środowiskowych:
-- Skrypty deploymentowe korzystają z profili `config/feature-flags/*` (dev, stage, prod).
-- Używaj skryptu podanego pod `npm run deploy:firebase` lub polegaj na App Hostingu i wrzucaniu push'ów konwencjonalnych na branch. Unikaj niekontrolowanego `firebase deploy --only functions` z palca bez aktualizacji CHANGELOGU.
+Architektura logiczna: `docs/project-documentation.md`
+Diagram UML: `docs/architecture.puml`
 
 ---
 
-## 3. 🛡️ Baza i Autoryzacja (Multi-Tenancy)
+## 2. Komendy
 
-### Reguła Złotego Organizatora
-**Zakaz globalnych odpytań (Zero cross-org queries).**
-- Baza danych (Firestore) działa w architekturze współdzielonej. Każde odczytanie i zapis do bazy MUSI precyzyjnie zaczynać się od rootowanej ścieżki organizacji: `organizations/{orgId}/restaurants/{restaurantId}/...`. 
-- Niejawne zagnieżdżanie kolekcji globalnych to potencjalny wyciek B2B, który grozi zwolnieniem.
-- Wszystkie API endpoints (`/api/*`) muszą być zabezpieczone wrapperem autoryzacyjnym `withAuth` oraz nakładkami na Role `requirePermission(context, 'nazwa.uprawnienia')`.
+```bash
+# Development
+npm run dev                    # Next.js dev server
+npm run dev:start              # Emulatory + Next.js (preferowany tryb pracy)
+npm run dev:start:clean        # Reset emulatorów + start
+npm run dev:flags              # Podgląd aktywnych feature flag
+
+# Seed
+npm run seed:unified           # Pełny seed (org + team + restaurant + menu)
+npm run seed:core              # Seed bazowy (users + org)
+npm run seed:demo              # Seed demo
+
+# Test & Lint
+npx vitest run                 # Testy jednostkowe/biznesowe
+npm run lint                   # ESLint
+npm run lint:px                # Weryfikacja zakazu px w src/
+npx tsc -p tsconfig.json --noEmit  # TypeScript check
+
+# Deploy
+npm run deploy:firebase        # Deploy na Firebase/GCP
+npm run deploy:env:check       # Walidacja env przed deploy
+npm run deploy:smoke -- --base-url <url>  # Smoke test po deploy
+```
+
+Szczegóły emulatorów: `EMULATORS.md`
 
 ---
 
-## 4. 🎨 CSS i Tokeny (Rygor "No-PX")
+## 3. Struktura katalogów
 
-Jedno z najbardziej restrykcyjnych przykazań w `gastroo.space`: **W UI kodu wewnątrz `src/` zabrania się twardego kodowania jednostek `px`.** Wyjątkiem są border-width czy z góry przemyślane małe tricki media-query - poza tym to twarda blokada (weryfikowana skryptem `npm run lint:px`).
-
-### Podział Złoty CSS:
-1. **Zastosowanie Systemu UI (General Platform)**
-   Zastępowane importem z `src/styles/units.ts`. Zamiast pisać height 16px, używaj `vh(16)`, zamiast szerokości 300px, pisz `vw(300)` lub `vmin()`. Pod maską liczą się one na podstawie bazowej mapy ekranu 768x1024px, co wymusza pełne fluid spacing.
-2. **Zastosowanie Systemu T (Aplikacja Point of Sale, PIN-numery)**
-   Tam gdzie UX wymaga precyzji w dotyku kelnera (mobilne POS'y, ekrany zamówień). Moduł oparty na pliku `pos.tokens.ts`. Przyciski i obszary muszą mieć zawsze objętość minimalną **>44px**. Tokenizuj z narzuconej logiki: `clamp(min, preferred, max)`.
-3. Emotion: Nie powołuj innych css-in-js (jak styled-components). Projekt bazuje w pełni na natywnym potoku silnika **MUI** (`@mui/material`) z atrybutem `sx={...}`.
-
----
-
-## 5. 🧪 Wytyczne Testów & NFR (Non-Functional) & PWA
-
-- Testy jednostkowe / biznesowe odpalisz komendą `npx vitest run`. Uruchamia ona walidatory logiczne i pliki \`*.test.ts\` z backendu i domenowych interfejsów (np. contract testy za pomocą helpersów seedowania `npm run test:seed:contracts`).
-- Aplikacja ma działać offline bez zgubienia pracy kelnera. Endpointy `GET` mają strategię `NetworkFirst`, natomiast **`POST /api/*` koniecznie opiera się o Service Worker'a i jest odkładany na "Background Sync Queue"** jeżeli pracownik traci zasięg w piwnicy lokalu.
-- Kryteria wydajnościowe API: p95 wynoszące **nie więcej niż 800ms**. CLS (Cumulative Layout Shift) UI niepływający powyżej **0.1**.
+```
+src/app/[lang]/...             — UI i strony (routing językowy, i18n prefix)
+src/app/api/**/route.ts        — API routes (App Router)
+src/lib/firebase/config.ts     — Firebase client SDK (przeglądarka)
+src/lib/firebase/admin.ts      — Firebase admin SDK (serwer/Node runtime)
+src/lib/api/auth.ts            — Middleware auth (withAuth, requirePermission)
+src/lib/firebase/collections.ts — Firestore interfaces (authoritative schema)
+src/styles/theme.ts            — UI tokens (vmin/vw/vh)
+src/styles/pos.tokens.ts       — POS tokens (clamp)
+src/styles/units.ts            — Helpery jednostek: vh(), vw(), vmin()
+functions/src/*.ts              — Cloud Functions
+firestore.rules                — Reguły bezpieczeństwa Firestore
+```
 
 ---
 
-## 📅 Roadmapa i Odpowiedzialność
-Twoim obowiązkiem jest:
-- Czytać instrukcje przed modyfikowaniem starych stylów (pamiętaj o `no px`).
-- Rejestrować każdą głęboką ewolucję bazy w `CHANGELOG.md` i dokumentacji w `docs/ai/` na zasadzie sprintów.
-- Być bezwzględnym względem izolowania danych po ID Organizacji `orgId`.
+## 4. Reguły krytyczne
+
+### 4.1 Multi-tenancy — Reguła Złotego Organizatora
+
+**Zakaz globalnych odpytań. Zero cross-org queries.**
+
+- Każdy odczyt/zapis MUSI zaczynać się od `organizations/{orgId}/...`
+- Niejawne kolekcje globalne = potencjalny wyciek B2B
+- Wszystkie API endpoints zabezpieczone `withAuth` + `requirePermission(context, 'nazwa.uprawnienia')`
+
+### 4.2 CSS — Rygor "No-PX"
+
+**Zakaz hardcoded `px` w kodzie UI wewnątrz `src/`.** Wyjątki: border-width, media-query tricks. Weryfikacja: `npm run lint:px`.
+
+Dwa systemy tokenów:
+
+| System | Plik | Zastosowanie |
+|--------|------|-------------|
+| **UI** | `src/styles/theme.ts` | Layout ogólny: `vmin()`, `vw()`, `vh()` z ref viewport 768x1024 |
+| **T** | `src/styles/pos.tokens.ts` | POS/dotyk: `clamp(min, preferred, max)`, min touch >44px |
+
+- Stylowanie wyłącznie przez MUI `sx={...}` (Emotion). Zakaz styled-components.
+- Spacing z `UI.space`, radius z `UI.radius`, nie "z palca".
+
+Pełna dokumentacja tokenów: `TOKENS.md`
+
+### 4.3 Konwencje commitów
+
+Conventional Commits, opis 5-6 słów:
+- `feat:` nowa funkcjonalność
+- `fix:` poprawka
+- `chore:` narzędzia dev, konfiguracja, docs
+- `refactor:` przepisanie logiki
+
+### 4.4 Rejestrowanie pracy
+
+- Po kluczowych zmianach zaktualizuj `CHANGELOG.md` (format: sprint/data/zakres)
+- Backlog: `docs/ai/backlog.md`
+
+---
+
+## 5. Zasady zmian
+
+- **Minimalny zakres** — zmieniaj tylko to, co potrzebne; nie refaktoryzuj "przy okazji"
+- **Edge vs Node runtime** — jeśli używasz Node-only (`crypto`, `fs`, `firebase-admin`): `export const runtime = 'nodejs'` w route handler
+- **Client vs Admin SDK** — UI: `src/lib/firebase/config.ts` (rules enforced). Serwer: `src/lib/firebase/admin.ts`
+- **i18n** — nowe strony UI pod `src/app/[lang]/...`
+- **Walidacja** — Zod dla payloadów (`src/lib/validation/`)
+- **Swagger** — zmiany endpointów aktualizuj w `swagger-seed.yaml`
+
+---
+
+## 6. Security
+
+- Nie commituj `.env*` z sekretami, nie loguj tokenów
+- Seed API chronione przez Bearer token + fallback `x-seed-admin-key`
+- Zmiany modelu danych wymagają przeglądu `firestore.rules` / `storage.rules`
+- Swagger UI z CDN (`unpkg.com`) — na prod rozważ local bundle
+
+---
+
+## 7. Stylowanie UI
+
+- **Minimalizm**: czysty, czytelny, bez zbędnych gradientów/cieni
+- **Kolory**: jasny #ffffff/#171717, ciemny #171717/#f5f5f5, akcenty: stonowane szarości/beże/złoto (#a67c37)
+- **Dark/light mode**: zgodny z systemowym motywem użytkownika
+- **Typografia**: system-ui, sans-serif; rozmiary przez clamp
+- **Responsywność**: skalowalne, touch targets min. 44px (przez clamp/vw/vh)
+- **ThemeRegistry**: `src/app/[lang]/components/ThemeRegistry.tsx` — korzystaj z `UI` i `T`, nie duplikuj wartości
+
+---
+
+## 8. Testy & NFR
+
+- Testy: `npx vitest run` + contract testy: `npm run test:seed:contracts`
+- **Offline**: GET = NetworkFirst, POST = Background Sync Queue (Service Worker)
+- **Wydajność**: API p95 <= 800ms, CLS <= 0.1
+- **PWA**: aplikacja musi działać offline bez utraty pracy kelnera
+
+---
+
+## 9. PR Checklist
+
+- [ ] Lint przechodzi
+- [ ] TypeScript kompiluje (`tsc --noEmit`)
+- [ ] Swagger zaktualizowany (jeśli dotyczy)
+- [ ] Brak logów z sekretami/tokenami
+- [ ] Node-only zależności mają `runtime = 'nodejs'`
+- [ ] Brak zmian reguł bezpieczeństwa bez review
+- [ ] Brak hardcoded `px` w `src/`
+- [ ] CHANGELOG.md zaktualizowany
+
+---
+
+## 10. Referencje
+
+| Dokument | Opis |
+|----------|------|
+| `TOKENS.md` | Design tokens: UI system + T system + unit helpers |
+| `EMULATORS.md` | Firebase emulators: porty, konfiguracja, troubleshooting |
+| `docs/project-documentation.md` | Architektura i moduły |
+| `docs/technical-standards.md` | NFR, skalowanie, PWA, responsive |
+| `docs/env-driven-runtime.md` | Zmienne środowiskowe, feature flags, profile |
+| `docs/ai/api-reference.md` | API endpoints, auth patterns, error codes |
+| `docs/ai/seed-data.md` | Seed infrastructure, test credentials |
+| `docs/ai/backlog.md` | Priorytetyzowany backlog (P0/P1/P2) |

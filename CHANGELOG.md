@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.3] - 2026-03-26
+
+### Changed
+- **CLAUDE.md**: Przepisany od zera — skonsolidowany z AGENTS.md jako single source of truth dla AI
+- **AGENTS.md**: Usunięty (treść wchłonięta przez CLAUDE.md)
+- **docs/ai/**: Usunięte stale session logi (SESSION_SUMMARY, IMPLEMENTATION_PROGRESS, QUICK_REFERENCE), zmergowane duplikaty, ujednolicone nazwy (api-reference.md, seed-data.md, backlog.md)
+- **README.md**: Zaktualizowane referencje do nowej struktury dokumentacji
+
 ## [0.1.2] - 2026-03-17
 
 ### Changed
