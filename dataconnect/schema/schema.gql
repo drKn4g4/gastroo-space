@@ -1,0 +1,9 @@
+# Minimalny schema model pod lokalne testy Data Connect.
+# Bez mutacji: służy do odczytu danych seedowanych poza Data Connect.
+
+type SeedMarker @table(name: "SeedMarkers") {
+  id: UUID! @default(expr: "uuidV4()")
+  key: String! @col(dataType: "varchar(64)")
+  value: String! @col(dataType: "varchar(512)")
+  updatedAt: Date! @default(expr: "request.time")
+}

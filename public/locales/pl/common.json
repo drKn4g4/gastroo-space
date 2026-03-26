@@ -1,48 +1,103 @@
 {
-  "nav": {
-    "offer": "Oferta",
-    "demo": "Demo",
-    "login": "Zaloguj się",
-    "dashboard": "Panel",
-    "logout": "Wyloguj się"
+  "footer": {
+    "all_rights_reserved": "Wszelkie prawa zastrzeżone.",
+    "product": "Produkt",
+    "company": "Firma",
+    "contact": "Kontakt",
+    "privacy": "Prywatność"
   },
-  "hero": {
-    "title": "Twój pilot do zarządzania restauracją.",
-    "subtitle": "Oszczędzaj czas i pieniądze, zarządzając profilem w Google, rezerwacjami, menu QR i grafikiem zespołu z jednego, prostego panelu.",
-    "cta_demo": "Zobacz Demo",
-    "cta_offer": "Zobacz Ofertę"
+  "common": {
+    "cancel": "Anuluj",
+    "save": "Zapisz",
+    "delete": "Usuń",
+    "edit": "Edytuj",
+    "add": "Dodaj",
+    "close": "Zamknij",
+    "confirm": "Potwierdź",
+    "loading": "Ładowanie...",
+    "error": "Błąd",
+    "success": "Sukces",
+    "warning": "Ostrzeżenie",
+    "info": "Informacja"
   },
-  "offer": {
-    "title": "Wybierz plan idealny dla Twojego lokalu",
-    "price_per_month": "miesięcznie",
-    "cta_choose": "Wybieram",
-    "packages": {
-      "visibility": {
-        "name": "Widoczność",
-        "price": "33.33 PLN",
-        "description": "Zarządzanie wizytówką w Google."
-      },
-      "reservations": {
-        "name": "Rezerwacje",
-        "price": "33.33 PLN",
-        "description": "Integracja rezerwacji z kalendarzem."
-      },
-      "team": {
-        "name": "Zespół",
-        "price": "33.33 PLN",
-        "description": "Tworzenie grafików i zarządzanie personelem."
-      },
-      "qr": {
-        "name": "Menu QR",
-        "price": "33.33 PLN",
-        "description": "Dynamiczne, cyfrowe menu dla gości."
-      },
-      "max": {
-        "name": "MAX",
-        "price": "99.99 PLN",
-        "subheader": "Wszystko w jednym!",
-        "description": "Pełen dostęp do wszystkich modułów w niższej cenie."
-      }
-    }
+  "errors": {
+    "something_went_wrong": "Coś poszło nie tak",
+    "unexpected_error": "Wystąpił nieoczekiwany błąd. Spróbuj odświeżyć stronę lub skontaktuj się z administratorem.",
+    "refresh_page": "Odśwież stronę",
+    "try_again": "Spróbuj ponownie"
+  },
+  "notifications": {
+    "title": "Powiadomienia",
+    "aria_label": "Powiadomienia",
+    "empty": "Brak nowych powiadomień.",
+    "mark_read": "Odczytane",
+    "remove": "Usuń"
+  },
+  "pwa": {
+    "install_title": "Zainstaluj Gastroo Space",
+    "install_subtitle": "Dodaj aplikację do ekranu głównego",
+    "ios_instructions": "Aby zainstalować aplikację:",
+    "ios_step1_prefix": "Naciśnij przycisk udostępniania",
+    "ios_step2_prefix": "Przewiń w dół i wybierz",
+    "ios_step2_action": "Dodaj do ekranu początkowego",
+    "ios_step3_prefix": "Potwierdź, naciskając",
+    "ios_step3_action": "Dodaj",
+    "install_now": "Zainstaluj teraz",
+    "later": "Później"
+  },
+  "currency": "{{amount}} zł",
+  "table_logs": {
+    "title": "Logi stolików",
+    "history": "Historia",
+    "empty": "Brak logów dla stolików w tej restauracji.",
+    "col_table": "Stolik",
+    "col_booking": "Rezerwacja",
+    "col_guest": "Gość",
+    "col_checkin": "Check-in",
+    "col_bill": "Rachunek",
+    "col_payments": "Płatności",
+    "col_closed": "Zamknięcie",
+    "col_staff": "Obsługa",
+    "col_notes": "Uwagi",
+    "processed_by": "Przez: {{name}} | {{method}}"
+  },
+  "session": {
+    "tab_orders": "Zamówienia",
+    "tab_bill": "Rachunek",
+    "tab_invite": "Zaproś",
+    "status_ordered": "Zamówione",
+    "status_preparing": "W kuchni",
+    "status_served": "Podane",
+    "header_session": "Sesja",
+    "header_table": "Stolik {{name}}",
+    "header_table_number": "Stolik #{{number}}",
+    "header_guests_one": "{{count}} osoba",
+    "header_guests_other": "{{count}} osób",
+    "sos_sent": "Wysłano",
+    "orders_empty": "Brak zamówień",
+    "orders_empty_hint": "Dodaj pozycje z menu restauracji",
+    "orderer_me": "Ty",
+    "orderer_guest": "Gość",
+    "bill_label": "Rachunek",
+    "bill_paid": "Opłacone",
+    "bill_remaining": "Do zapłaty",
+    "split_mode_label": "Tryb podziału",
+    "split_full_pay": "Płacę za wszystko",
+    "split_equal": "Po równo",
+    "split_itemized": "Za swoje",
+    "my_amount": "Twoja kwota",
+    "equal_split_hint": "{{total}} / {{count}} osób",
+    "itemized_label": "Zaznacz swoje pozycje",
+    "claimed_by": "Opłacane przez {{name}}",
+    "claimed_by_guest": "Opłacane przez gościa",
+    "tip_label": "Napiwek",
+    "tip_custom_placeholder": "Kwota własna",
+    "tip_set": "Ustaw",
+    "tip_current": "Napiwek: {{amount}} {{currency}}",
+    "invite_title": "Zaproś do stolika",
+    "invite_hint": "Niech Twoi znajomi zeskanują ten kod, żeby dołączyć do wspólnego rachunku.",
+    "at_table": "Przy stoliku ({{count}})",
+    "guest_me_suffix": " (Ty)",
+    "pay_btn": "Zapłać {{amount}} {{currency}}"
   }
 }

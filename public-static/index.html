@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>gastroo.space</title>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      width: 100vw;
+      min-height: 100vh;
+      background: #fff;
+      color: #171717;
+      font-family: system-ui, -apple-system, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100vw;
+      height: 100vh;
+      min-height: 100vh;
+    }
+    .enigmatic {
+      font-size: clamp(2.5rem, 8vw, 5rem);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: #a67c37;
+      text-align: center;
+      margin: 0;
+    }
+    .lang-switch {
+      margin-top: 2.5rem;
+      display: flex;
+      gap: 1.5rem;
+    }
+    .lang-link {
+      color: #c5a059;
+      text-decoration: none;
+      font-size: 1.2rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .lang-link:hover {
+      color: #a67c37;
+    }
+  </style>
+</head>
+<body>
+  <div class="center">
+    <div id="enigmatic" class="enigmatic">gotujemy...</div>
+    <div class="lang-switch">
+      <a href="/pl/" class="lang-link">PL</a>
+      <a href="/en/" class="lang-link">EN</a>
+      <a href="/de/" class="lang-link">DE</a>
+      <a href="/fr/" class="lang-link">FR</a>
+    </div>
+  </div>
+  <script>
+    // i18n translations
+    const translations = {
+      pl: 'gotujemy...',
+      en: 'we are cooking...',
+      de: 'wir kochen...',
+      fr: 'nous cuisinons...'
+    };
+    function getLang() {
+      const path = window.location.pathname;
+      const match = path.match(/^\/(pl|en|de|fr)(\/|$)/);
+      return match ? match[1] : 'pl';
+    }
+    document.getElementById('enigmatic').textContent = translations[getLang()] || translations['pl'];
+  </script>
+</body>
+</html>

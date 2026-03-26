@@ -1,0 +1,28 @@
+.BookingCalendarView {
+}
+
+html {
+	scroll-behavior: smooth;
+	overscroll-behavior: none;
+}
+
+body {
+	margin: 0;
+	min-height: 100vh;
+	text-rendering: optimizeLegibility;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	overscroll-behavior: none;
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+#__next,
+body > div:first-child {
+	min-height: 100vh;
+}
+

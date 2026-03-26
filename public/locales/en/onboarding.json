@@ -1,0 +1,50 @@
+{
+  "onboarding": {
+    "subtitle": "Tell us about yourself",
+    "steps": {
+      "account": "Account",
+      "preferences": "Preferences",
+      "whoAreYou": "Who are you?"
+    },
+    "step1": {
+      "title": "Your account",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "emailImported": "Imported from Google account",
+      "password": "Password (optional)",
+      "passwordHint": "Set a password to also log in via email"
+    },
+    "step2": {
+      "title": "What do you like?",
+      "subtitle": "Pick your favourite flavours — they will help us match offers to your preferences.",
+      "searchPlaceholder": "Search more flavours...",
+      "searchExample": "matcha, omakase, speakeasy...",
+      "allergens": "Allergies / allergens",
+      "allergensHint": "Optional — they will help you avoid dishes with allergens"
+    },
+    "step3": {
+      "title": "Who are you?",
+      "foodie": {
+        "title": "Foodie",
+        "description": "Discover new places, take advantage of promotions and offers, meet friends, try cuisines from around the world."
+      },
+      "gastronaut": {
+        "title": "Gastronaut",
+        "description": "...and on top of that you serve, cook, mix cocktails, or develop a hospitality business."
+      }
+    },
+    "done": {
+      "title": "Done!",
+      "subtitleGastronaut": "Your gastronaut profile is ready.",
+      "subtitleFoodie": "Your foodie profile is ready."
+    },
+    "buttons": {
+      "back": "Back",
+      "next": "Next",
+      "save": "Save profile"
+    },
+    "errors": {
+      "saveFailed": "An error occurred while saving the profile"
+    }
+  }
+}

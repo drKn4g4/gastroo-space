@@ -450,7 +450,7 @@ export function CreateMenuItemForm() {
 
 ```bash
 # Create menu item
-curl -X POST http://localhost:3000/api/menu/create \
+curl -X POST http://localhost:5202/api/menu/create \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_ID_TOKEN" \
   -d '{
@@ -462,11 +462,11 @@ curl -X POST http://localhost:3000/api/menu/create \
   }'
 
 # Get organization
-curl -X GET "http://localhost:3000/api/organization/update?orgId=org-123" \
+curl -X GET "http://localhost:5202/api/organization/update?orgId=org-123" \
   -H "Authorization: Bearer YOUR_ID_TOKEN"
 
 # Add team member
-curl -X POST http://localhost:3000/api/members/add \
+curl -X POST http://localhost:5202/api/members/add \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_ID_TOKEN" \
   -d '{

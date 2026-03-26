@@ -1,0 +1,17 @@
+{
+  "errors": {
+    "notFound": {
+      "title": "Strona nie znaleziona",
+      "message": "Przepraszamy, strona ktora szukasz zniknela szybciej niz danie przygotowywane w kuchni. Wroc do glownej strony.",
+      "footer": "Error 404"
+    },
+    "generic": {
+      "title": "Cos poszlo nie tak",
+      "message": "Przepraszamy, aplikacja napotkala nieoczekiwany blad."
+    },
+    "buttons": {
+      "home": "Wroc na glowna",
+      "retry": "Sprobuj ponownie"
+    }
+  }
+}

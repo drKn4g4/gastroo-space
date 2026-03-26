@@ -1,0 +1,55 @@
+extend type Query {
+  """
+  ✨ Look up a single `SeedMarker` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  seedMarker(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: SeedMarker_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: SeedMarker_FirstRow
+  ): SeedMarker @fdc_generated(from: "SeedMarker", purpose: QUERY_SINGLE)
+  """
+  ✨ List `SeedMarker` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  seedMarkers(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: SeedMarker_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [SeedMarker_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: SeedMarker_Having
+  ): [SeedMarker!]! @fdc_generated(from: "SeedMarker", purpose: QUERY_MULTIPLE)
+}

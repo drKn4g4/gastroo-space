@@ -1,0 +1,17 @@
+{
+  "errors": {
+    "notFound": {
+      "title": "Page not found",
+      "message": "Sorry, the page you are looking for disappeared faster than a dish being prepared in the kitchen. Go back to the main page.",
+      "footer": "Error 404"
+    },
+    "generic": {
+      "title": "Something went wrong",
+      "message": "Sorry, the application encountered an unexpected error."
+    },
+    "buttons": {
+      "home": "Go home",
+      "retry": "Try again"
+    }
+  }
+}

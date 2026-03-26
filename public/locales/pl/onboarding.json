@@ -1,0 +1,50 @@
+{
+  "onboarding": {
+    "subtitle": "Opowiedz nam o sobie",
+    "steps": {
+      "account": "Konto",
+      "preferences": "Preferencje",
+      "whoAreYou": "Kim jestes?"
+    },
+    "step1": {
+      "title": "Twoje konto",
+      "firstName": "Imie",
+      "lastName": "Nazwisko",
+      "emailImported": "Zaimportowane z konta Google",
+      "password": "Haslo (opcjonalne)",
+      "passwordHint": "Ustaw haslo, aby logowac sie rowniez przez email"
+    },
+    "step2": {
+      "title": "Co lubisz?",
+      "subtitle": "Wybierz ulubione smaki — pomoga nam dopasowac oferty do Twoich preferencji.",
+      "searchPlaceholder": "Szukaj wiecej smakow...",
+      "searchExample": "matcha, omakase, speakeasy...",
+      "allergens": "Uczulenia / alergeny",
+      "allergensHint": "Opcjonalne — pomoga Ci unikac potraw z alergenami"
+    },
+    "step3": {
+      "title": "Kim jestes?",
+      "foodie": {
+        "title": "Foodie",
+        "description": "Odkrywaj nowe miejsca, korzystaj z promocji i ofert, spotykaj sie ze znajomymi, probuj nowych kuchni swiata."
+      },
+      "gastronaut": {
+        "title": "Gastronaut",
+        "description": "...a do tego serwiujesz, gotujesz, mieszasz koktajle lub rozwijasz biznes gastronomiczny."
+      }
+    },
+    "done": {
+      "title": "Gotowe!",
+      "subtitleGastronaut": "Twoj profil gastronauty jest gotowy.",
+      "subtitleFoodie": "Twoj profil foodie jest gotowy."
+    },
+    "buttons": {
+      "back": "Wstecz",
+      "next": "Dalej",
+      "save": "Zapisz profil"
+    },
+    "errors": {
+      "saveFailed": "Wystapil blad podczas zapisu profilu"
+    }
+  }
+}

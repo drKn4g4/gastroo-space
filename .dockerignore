@@ -1,0 +1,17 @@
+node_modules
+.next
+.git
+.gitignore
+firebase-export-*
+emulator-data
+playwright-report
+test-results
+coverage
+*.log
+.env*
+!.env.production.example
+README.md
+AGENTS.md
+TOKENS.md
+.vscode
+.DS_Store

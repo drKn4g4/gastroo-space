@@ -1,0 +1,18 @@
+{
+  "nav": {
+    "offer": "Offer",
+    "demo": "Demo",
+    "login": "Login",
+    "logout": "Logout",
+    "dashboard": "Dashboard",
+    "manage": "Manage",
+    "locations": "Locations",
+    "bookings": "Bookings",
+    "menu": "Menu",
+    "team": "Team",
+    "settings": "Settings",
+    "floorplan": "Floor plan",
+    "integrations": "Integrations",
+    "open_menu": "Open menu"
+  }
+}

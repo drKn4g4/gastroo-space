@@ -1,23 +1,89 @@
 # Settings for Backend (on Cloud Run).
 # See https://firebase.google.com/docs/app-hosting/configure#cloud-run
 runConfig:
-  minInstances: 0
-  # maxInstances: 100
-  # concurrency: 80
-  # cpu: 1
-  # memoryMiB: 512
+  minInstances: 1
+  maxInstances: 100
+  concurrency: 80
+  cpu: 2
+  memoryMiB: 1024
 
-# Environment variables and secrets.
-# env:
-  # Configure environment variables.
-  # See https://firebase.google.com/docs/app-hosting/configure#user-defined-environment
-  # - variable: MESSAGE
-  #   value: Hello world!
-  #   availability:
-  #     - BUILD
-  #     - RUNTIME
+# ── Environment Variables & Secrets ────────────────────────────────────────
+# Set actual secret values in Firebase App Hosting backend settings
+# (Firebase Console → App Hosting → Backend → Environment) or via Secret Manager.
+# Values listed here are non-sensitive defaults; secrets must be set externally.
+# See https://firebase.google.com/docs/app-hosting/configure
+env:
+  # ── Runtime defaults ────────────────────────────────────────────────────
+  - variable: NODE_ENV
+    value: production
+    availability:
+      - BUILD
+      - RUNTIME
 
-  # Grant access to secrets in Cloud Secret Manager.
-  # See https://firebase.google.com/docs/app-hosting/configure#secret-parameters
-  # - variable: MY_SECRET
-  #   secret: mySecretRef
+  - variable: NEXT_PUBLIC_USE_EMULATORS
+    value: "false"
+    availability:
+      - BUILD
+      - RUNTIME
+
+  # Disable mock integrations in production
+  - variable: MOCK_INTEGRATIONS_ON_EMULATOR
+    value: "false"
+    availability:
+      - RUNTIME
+
+  - variable: MOCK_INTEGRATIONS
+    value: "false"
+    availability:
+      - RUNTIME
+
+  # ── Seed API auth ───────────────────────────────────────────────────────
+  - variable: SEED_REQUIRE_ADMIN_CLAIM
+    value: "true"
+    availability:
+      - RUNTIME
+
+  - variable: SEED_ADMIN_CLAIM
+    value: seedAdmin
+    availability:
+      - RUNTIME
+
+  # ── Feature flags ───────────────────────────────────────────────────────
+  - variable: NEXT_PUBLIC_FEATURE_GOOGLE_CHAT
+    value: "true"
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_FEATURE_GOOGLE_CALENDAR
+    value: "true"
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_FEATURE_OFFLINE_QUEUE
+    value: "true"
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_FEATURE_ADVANCED_FLOORPLAN
+    value: "true"
+    availability:
+      - BUILD
+      - RUNTIME
+
+  # ── Secrets (set via Firebase Console → App Hosting → Secrets or Secret Manager) ─
+  # Uncomment and reference Secret Manager secret names after creating them:
+  #
+  # - variable: SEED_ADMIN_KEY
+  #   secret: seed-admin-key
+  #
+  # - variable: GOOGLE_DRIVE_CLIENT_SECRET
+  #   secret: google-drive-client-secret
+  #
+  # - variable: GOOGLE_CALENDAR_CLIENT_SECRET
+  #   secret: google-calendar-client-secret
+  #
+  # - variable: GOOGLE_WORKSPACE_CLIENT_SECRET
+  #   secret: google-workspace-client-secret

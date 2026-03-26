@@ -2,10 +2,16 @@
   "projects": {
     "default": "gastroo-4f0a3"
   },
-  "targets": {},
-  "etags": {
+  "targets": {
     "gastroo-4f0a3": {
-      "extensionInstances": {}
+      "hosting": {
+        "prod": [
+          "gastroo-4f0a3"
+        ],
+        "dev": [
+          "dev-gastroo-space"
+        ]
+      }
     }
   }
 }

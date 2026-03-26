@@ -1,0 +1,54 @@
+extend type SeedMarker {
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "SeedMarker", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `SeedMarker` table.
+  """
+  _count: Int! @fdc_generated(from: "SeedMarker", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `SeedMarker` table where the `id` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  id_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "SeedMarker.id", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `SeedMarker` table where the `key` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  key_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "SeedMarker.key", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `SeedMarker` table where the `updatedAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  updatedAt_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "SeedMarker.updatedAt", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `SeedMarker` table where the `value` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  value_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "SeedMarker.value", purpose: QUERY_COUNT)
+  """
+  ✨ Minimum of the `updatedAt` field in the `SeedMarker` table.
+  """
+  updatedAt_min: Date @fdc_generated(from: "SeedMarker.updatedAt", purpose: QUERY_MIN)
+  """
+  ✨ Maximum of the `updatedAt` field in the `SeedMarker` table.
+  """
+  updatedAt_max: Date @fdc_generated(from: "SeedMarker.updatedAt", purpose: QUERY_MAX)
+}

@@ -182,8 +182,8 @@ Existing smoke tests (18/18 passing) still validate overall app health.
 ## Next Priority Actions
 
 ### Phase 2.1: Team & Organization Seed Data (HIGH PRIORITY)
-- Create `scripts/seed-organization.ts` - Initialize default roles/permissions
-- Create `scripts/seed-team.ts` - Create test team members
+- Create `scripts/seed.ts` - Initialize default roles/permissions
+- Create `scripts/seed.ts` - Create test team members
 - Run once during dev setup to establish baseline data
 
 ### Phase 2.2: BDD Test Integration (HIGH PRIORITY)

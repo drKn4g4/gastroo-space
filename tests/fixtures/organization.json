@@ -1,0 +1,73 @@
+{
+  "organization": {
+    "id":       "demo-org",
+    "name":     "Gastroo Demo",
+    "slug":     "gastroo-demo",
+    "type":     "single_location",
+    "plan":     "pro",
+    "features": ["bookings", "menu", "team"],
+    "location": { "lat": 52.2297, "lng": 21.0122 }
+  },
+
+  "restaurant": {
+    "id":          "demo-bistro",
+    "name":        "Bistro Gastroo",
+    "description": "Nowoczesne bistro w centrum Warszawy — kuchnia fusion, sezonowe menu i craft drinks.",
+    "address": {
+      "street":     "ul. Marszałkowska 12",
+      "city":       "Warszawa",
+      "postalCode": "00-001",
+      "country":    "Poland"
+    },
+    "phone":   "+48 22 123 45 67",
+    "email":   "kontakt@bistro-gastroo.pl",
+    "website": "https://bistro-gastroo.pl",
+    "timezone": "Europe/Warsaw",
+    "settings": {
+      "currency":              "PLN",
+      "language":              "pl",
+      "bookingDuration":       90,
+      "depositAmount":         0,
+      "maxGuestsPerBooking":   12,
+      "defaultBookingStatus":  "confirmed"
+    },
+    "openingHours": {
+      "monday":    { "open": "12:00", "close": "22:00", "closed": false },
+      "tuesday":   { "open": "12:00", "close": "22:00", "closed": false },
+      "wednesday": { "open": "12:00", "close": "22:00", "closed": false },
+      "thursday":  { "open": "12:00", "close": "22:00", "closed": false },
+      "friday":    { "open": "12:00", "close": "23:00", "closed": false },
+      "saturday":  { "open": "11:00", "close": "23:00", "closed": false },
+      "sunday":    { "open": "11:00", "close": "21:00", "closed": false }
+    },
+    "location": { "lat": 52.2297, "lng": 21.0122 },
+    "tags": ["bistro", "fusion", "craft-drinks", "warszawa", "centrum"],
+    "socialLinks": {
+      "instagram": "https://instagram.com/bistro_gastroo",
+      "facebook":  "https://facebook.com/bistrogastroo"
+    },
+    "capacity":   60,
+    "tableCount": 12
+  },
+
+  "sections": [
+    { "id": "section-a",     "name": "Sala A", "color": "#fb923c", "order": 0 },
+    { "id": "section-b",     "name": "Sala B", "color": "#60a5fa", "order": 1 },
+    { "id": "section-taras", "name": "Taras",  "color": "#4ade80", "order": 2 }
+  ],
+
+  "tables": [
+    { "id": "table-1",  "number": 1,  "capacity": 2, "shape": "round",     "posX": 10, "posY": 12, "status": "free",     "sectionId": "section-a" },
+    { "id": "table-2",  "number": 2,  "capacity": 2, "shape": "round",     "posX": 28, "posY": 12, "status": "occupied", "sectionId": "section-a" },
+    { "id": "table-3",  "number": 3,  "capacity": 2, "shape": "round",     "posX": 46, "posY": 12, "status": "reserved", "sectionId": "section-a" },
+    { "id": "table-4",  "number": 4,  "capacity": 2, "shape": "round",     "posX": 64, "posY": 12, "status": "free",     "sectionId": "section-a" },
+    { "id": "table-5",  "number": 5,  "capacity": 2, "shape": "round",     "posX": 82, "posY": 12, "status": "free",     "sectionId": "section-a" },
+    { "id": "table-6",  "number": 6,  "capacity": 4, "shape": "rectangle", "posX": 10, "posY": 45, "status": "occupied", "sectionId": "section-b" },
+    { "id": "table-7",  "number": 7,  "capacity": 4, "shape": "rectangle", "posX": 35, "posY": 45, "status": "free",     "sectionId": "section-b" },
+    { "id": "table-8",  "number": 8,  "capacity": 4, "shape": "rectangle", "posX": 60, "posY": 45, "status": "reserved", "sectionId": "section-b" },
+    { "id": "table-9",  "number": 9,  "capacity": 4, "shape": "rectangle", "posX": 82, "posY": 45, "status": "free",     "sectionId": "section-b" },
+    { "id": "table-10", "number": 10, "capacity": 6, "shape": "square",    "posX": 10, "posY": 75, "status": "free",     "sectionId": "section-b" },
+    { "id": "table-11", "number": 11, "capacity": 6, "shape": "square",    "posX": 40, "posY": 75, "status": "occupied", "sectionId": "section-b" },
+    { "id": "table-12", "number": 12, "capacity": 8, "shape": "rectangle", "posX": 72, "posY": 75, "status": "free",     "sectionId": "section-taras", "name": "Taras" }
+  ]
+}

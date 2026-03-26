@@ -1,50 +1,103 @@
 {
-  "nav": {
-    "offer": "Offer",
-    "demo": "Demo",
-    "login": "Log in",
-    "dashboard": "Dashboard",
-    "logout": "Log out"
+  "footer": {
+    "all_rights_reserved": "All rights reserved.",
+    "product": "Product",
+    "company": "Company",
+    "contact": "Contact",
+    "privacy": "Privacy"
   },
-  "hero": {
-    "title": "Your restaurant management cockpit.",
-    "subtitle": "Save time and money by managing your Google profile, reservations, QR menu, and team schedule from one simple dashboard.",
-    "cta_demo": "See Demo",
-    "cta_offer": "See Offer"
+  "common": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "close": "Close",
+    "confirm": "Confirm",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "warning": "Warning",
+    "info": "Information"
   },
-  "offer": {
-    "title": "Choose the perfect plan for your venue",
-    "price_per_month": "per month",
-    "cta_choose": "Choose Plan",
-    "packages": {
-      "packages": {
-        "visibility": {
-          "name": "Visibility",
-          "price": "11.11 EUR",
-          "description": "Manage your Google Business Profile."
-        },
-        "reservations": {
-          "name": "Reservations",
-          "price": "11.11 EUR",
-          "description": "Integrate reservations with your calendar."
-        },
-        "team": {
-          "name": "Team",
-          "price": "11.11 EUR",
-          "description": "Create schedules and manage staff."
-        },
-        "qr": {
-          "name": "QR Menu",
-          "price": "11.11 EUR",
-          "description": "A dynamic, digital menu for your guests."
-        },
-        "max": {
-          "name": "MAX",
-          "price": "33.33 EUR",
-          "subheader": "All in one!",
-          "description": "Full access to all modules for a lower price."
-          }
-        }
-      }
-    }
+  "errors": {
+    "something_went_wrong": "Something went wrong",
+    "unexpected_error": "An unexpected error occurred. Try refreshing the page or contact the administrator.",
+    "refresh_page": "Refresh page",
+    "try_again": "Try again"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "aria_label": "Notifications",
+    "empty": "No new notifications.",
+    "mark_read": "Read",
+    "remove": "Remove"
+  },
+  "pwa": {
+    "install_title": "Install Gastroo Space",
+    "install_subtitle": "Add app to home screen",
+    "ios_instructions": "To install the app:",
+    "ios_step1_prefix": "Tap the share button",
+    "ios_step2_prefix": "Scroll down and select",
+    "ios_step2_action": "Add to Home Screen",
+    "ios_step3_prefix": "Confirm by tapping",
+    "ios_step3_action": "Add",
+    "install_now": "Install now",
+    "later": "Later"
+  },
+  "currency": "{{amount}} PLN",
+  "table_logs": {
+    "title": "Table logs",
+    "history": "History",
+    "empty": "No logs for tables in this restaurant.",
+    "col_table": "Table",
+    "col_booking": "Booking",
+    "col_guest": "Guest",
+    "col_checkin": "Check-in",
+    "col_bill": "Bill",
+    "col_payments": "Payments",
+    "col_closed": "Closed",
+    "col_staff": "Staff",
+    "col_notes": "Notes",
+    "processed_by": "By: {{name}} | {{method}}"
+  },
+  "session": {
+    "tab_orders": "Orders",
+    "tab_bill": "Bill",
+    "tab_invite": "Invite",
+    "status_ordered": "Ordered",
+    "status_preparing": "In kitchen",
+    "status_served": "Served",
+    "header_session": "Session",
+    "header_table": "Table {{name}}",
+    "header_table_number": "Table #{{number}}",
+    "header_guests_one": "{{count}} person",
+    "header_guests_other": "{{count}} people",
+    "sos_sent": "Sent",
+    "orders_empty": "No orders",
+    "orders_empty_hint": "Add items from the restaurant menu",
+    "orderer_me": "Me",
+    "orderer_guest": "Guest",
+    "bill_label": "Bill",
+    "bill_paid": "Paid",
+    "bill_remaining": "To pay",
+    "split_mode_label": "Split mode",
+    "split_full_pay": "Pay for all",
+    "split_equal": "Split equally",
+    "split_itemized": "Pay for mine",
+    "my_amount": "My amount",
+    "equal_split_hint": "{{total}} / {{count}} people",
+    "itemized_label": "Select your items",
+    "claimed_by": "Paid by {{name}}",
+    "claimed_by_guest": "Paid by guest",
+    "tip_label": "Tip",
+    "tip_custom_placeholder": "Custom amount",
+    "tip_set": "Set",
+    "tip_current": "Tip: {{amount}} {{currency}}",
+    "invite_title": "Invite to table",
+    "invite_hint": "Have your friends scan this code to join the shared bill.",
+    "at_table": "At the table ({{count}})",
+    "guest_me_suffix": " (Me)",
+    "pay_btn": "Pay {{amount}} {{currency}}"
   }
+}

@@ -1,5 +1,11 @@
 env:
-#- variable: ENV_VAR_NAME
-#  value: plaintext value
+  - variable: NEXT_PUBLIC_USE_EMULATORS
+    value: "true"
+  - variable: NODE_ENV
+    value: development
+  - variable: MOCK_INTEGRATIONS_ON_EMULATOR
+    value: "true"
+  - variable: MOCK_INTEGRATIONS
+    value: "true"
 #- variable: SECRET_ENV_VAR_NAME
 #  secret: cloud-secret-manager-id

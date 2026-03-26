@@ -1,0 +1,114 @@
+extend type Mutation {
+  """
+  ✨ Insert a single `SeedMarker` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  seedMarker_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: SeedMarker_Data!
+  ): SeedMarker_KeyOutput! @fdc_generated(from: "SeedMarker", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert `SeedMarker` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  seedMarker_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [SeedMarker_Data!]!
+  ): [SeedMarker_KeyOutput!]! @fdc_generated(from: "SeedMarker", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert or update a single `SeedMarker` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `SeedMarker`.
+  """
+  seedMarker_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: SeedMarker_Data!
+  ): SeedMarker_KeyOutput! @fdc_generated(from: "SeedMarker", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update `SeedMarker` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `SeedMarker`.
+  """
+  seedMarker_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [SeedMarker_Data!]!
+  ): [SeedMarker_KeyOutput!]! @fdc_generated(from: "SeedMarker", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Update a single `SeedMarker` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `SeedMarker` or `null` if not found.
+  """
+  seedMarker_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: SeedMarker_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: SeedMarker_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: SeedMarker_Data!
+  ): SeedMarker_KeyOutput @fdc_generated(from: "SeedMarker", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update `SeedMarker` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  seedMarker_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: SeedMarker_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: SeedMarker_Data!
+  ): Int! @fdc_generated(from: "SeedMarker", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Delete a single `SeedMarker` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  seedMarker_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: SeedMarker_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: SeedMarker_FirstRow
+  ): SeedMarker_KeyOutput @fdc_generated(from: "SeedMarker", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete `SeedMarker` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  seedMarker_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: SeedMarker_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "SeedMarker", purpose: DELETE_MULTIPLE)
+}

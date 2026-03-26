@@ -23,6 +23,7 @@
 # misc
 .DS_Store
 *.pem
+*.bak
 
 # debug
 npm-debug.log*
@@ -32,6 +33,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.production.example
 
 # vercel
 .vercel
@@ -39,3 +41,43 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# firebase
+.firebase/
+.firebase/**
+functions/.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# firebase emulator exports / local data
+emulator-data/
+firebase-export-*/
+
+# local debug logs
+database-debug.log
+pubsub-debug.log
+*-debug.log
+
+# local tooling
+copilot.env
+.zencoder/
+.zenflow/
+
+# test artifacts
+playwright-report/
+test-results/
+
+# service worker
+public/sw.js
+public/workbox-*.js
+public/worker-*.js
+public/sw.js.map
+public/workbox-*.js.map
+public/worker-*.js.map
+
+# PWA files
+public/manifest.json
+
+# generated fallback bundles (if created by tooling)
+public/fallback-*.js

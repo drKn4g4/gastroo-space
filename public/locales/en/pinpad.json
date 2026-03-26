@@ -1,0 +1,22 @@
+{
+  "pinpad": {
+    "title": "PINpad",
+    "inputLabel": "Enter PIN code",
+    "placeholder": "0000",
+    "foodieMode": "Foodie Mode",
+    "errors": {
+      "invalidLength": "PIN must be {{length}} digits",
+      "invalidPin": "Invalid PIN code",
+      "loginFailed": "Login failed",
+      "noOrganization": "No organization selected"
+    },
+    "demo": {
+      "title": "PINpad Demo",
+      "subtitle": "Demo PIN pad",
+      "organization": "gastroo.space",
+      "pinHints": "Demo PIN codes",
+      "changeRestaurant": "Change venue",
+      "logout": "Log out"
+    }
+  }
+}

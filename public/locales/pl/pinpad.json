@@ -1,0 +1,22 @@
+{
+  "pinpad": {
+    "title": "PINpad",
+    "inputLabel": "Wpisz kod dostepu",
+    "placeholder": "0000",
+    "foodieMode": "Tryb Foodie",
+    "errors": {
+      "invalidLength": "Kod PIN musi miec {{length}} cyfry",
+      "invalidPin": "Kod PIN jest nieprawidlowy",
+      "loginFailed": "Logowanie nie powiodlo sie",
+      "noOrganization": "Brak organizacji"
+    },
+    "demo": {
+      "title": "PINpad Demo",
+      "subtitle": "Demo PIN pad",
+      "organization": "gastroo.space",
+      "pinHints": "Kody PIN demo",
+      "changeRestaurant": "Zmien lokal",
+      "logout": "Wyloguj"
+    }
+  }
+}

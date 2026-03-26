@@ -1,0 +1,36 @@
+{
+  "landing": {
+    "login_aria": "Login or register",
+    "section1": {
+      "title": "Gastroo.space connects guests, gastronauts, and venues in one ecosystem.",
+      "subtitle": "The platform helps discover restaurants, manage floor and team operations, and build customer loyalty from the first visit."
+    },
+    "section2": {
+      "title": "Join {{count}} users to discover new places and taste exceptional dishes.",
+      "subtitle": "Your favorite venues, orders, and loyalty points are always within reach."
+    },
+    "section3": {
+      "title": "Join {{count}} gastronauts to serve, cook, and craft cocktails.",
+      "subtitle": "Move faster on shift, track table statuses, and collaborate in real time."
+    },
+    "section4": {
+      "title": "Join {{count}} venues to host guests, manage operations, and scale your business.",
+      "subtitle": "Analytics, automations, integrations, and venue operations in one panel."
+    },
+    "footer": {
+      "brandSubtitle": "Run hospitality better, build relationships, and grow your venue smarter.",
+      "statsUsers": "Users: {{count}}",
+      "statsGastronauts": "Gastronauts: {{count}}",
+      "statsOrganizations": "Venues: {{count}}"
+    },
+    "intro": {
+      "try_without_signup": "Try without signing up",
+      "demo_description": "Test all system features with sample data. Changes are not saved to the server. You can reset the demo at any time.",
+      "login": "Sign in"
+    },
+    "final": {
+      "description": "After creating your venue you'll be taken to the dashboard, where in the second view you'll see a map with venues and filtering.",
+      "have_account": "I already have an account"
+    }
+  }
+}

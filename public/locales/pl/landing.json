@@ -1,0 +1,36 @@
+{
+  "landing": {
+    "login_aria": "Logowanie lub rejestracja",
+    "section1": {
+      "title": "Gastroo.space łączy gości, gastronautów i lokale w jednym ekosystemie.",
+      "subtitle": "Platforma pozwala odkrywać restauracje, zarządzać salą i zespołem oraz budować lojalność klientów od pierwszej wizyty."
+    },
+    "section2": {
+      "title": "Dołącz do {{count}} użytkowników, by odkrywać nowe miejsca i smakować wyjątkowe dania.",
+      "subtitle": "Twoje ulubione lokale, zamówienia i punkty lojalnościowe są zawsze pod ręką."
+    },
+    "section3": {
+      "title": "Dołącz do {{count}} gastronautów, by serwować, gotować i kreować koktajle.",
+      "subtitle": "Pracuj szybciej na zmianie, ogarniaj statusy stolików i działaj zespołowo w czasie rzeczywistym."
+    },
+    "section4": {
+      "title": "Dołącz do {{count}} lokali, by gościć, zarządzać i skalować swój biznes.",
+      "subtitle": "Analityka, automatyzacje, integracje i operacje lokalu zamknięte w jednym panelu."
+    },
+    "footer": {
+      "brandSubtitle": "Zarządzaj gastronomią, buduj relacje i rozwijaj lokal mądrzej.",
+      "statsUsers": "Użytkownicy: {{count}}",
+      "statsGastronauts": "Gastronauci: {{count}}",
+      "statsOrganizations": "Lokale: {{count}}"
+    },
+    "intro": {
+      "try_without_signup": "Wypróbuj bez rejestracji",
+      "demo_description": "Przetestuj wszystkie funkcje systemu na przykładowych danych. Zmiany nie są zapisywane na serwerze. Możesz zresetować demo w dowolnym momencie.",
+      "login": "Zaloguj się"
+    },
+    "final": {
+      "description": "Po utworzeniu lokalu przejdziesz do dashboardu, gdzie w drugim widoku zobaczysz mapę z lokalami i filtrowaniem.",
+      "have_account": "Mam już konto"
+    }
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "offer": {
+    "title": "Choose the perfect plan for your restaurant",
+    "price_per_month": "per month",
+    "cta_choose": "Choose",
+    "packages": {
+      "visibility": {
+        "name": "Visibility",
+        "price": "33.33 PLN",
+        "description": "Manage your Google business profile."
+      },
+      "reservations": {
+        "name": "Reservations",
+        "price": "33.33 PLN",
+        "description": "Integrate reservations with your calendar."
+      },
+      "team": {
+        "name": "Team",
+        "price": "33.33 PLN",
+        "description": "Create schedules and manage staff."
+      },
+      "qr": {
+        "name": "QR Menu",
+        "price": "33.33 PLN",
+        "description": "Dynamic digital menu for your guests."
+      },
+      "max": {
+        "name": "MAX",
+        "price": "99.99 PLN",
+        "subheader": "Everything in one!",
+        "description": "Full access to all modules at a lower price."
+      }
+    }
+  }
+}

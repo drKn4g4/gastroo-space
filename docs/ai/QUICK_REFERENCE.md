@@ -7,13 +7,13 @@
 npm run dev:emulators
 
 # 2. In another terminal, seed data
-npm run seed:api
+npm run seed:unified
 
 # 3. Login in app with:
 #    Email: api-owner@gastroo.dev
 #    Password: TestPassword123!
 
-# 4. Open http://localhost:3000/pl/login
+# 4. Open http://localhost:5202/pl/login
 ```
 
 ---
@@ -32,9 +32,9 @@ npm run seed:api
 | File | Purpose | Use When |
 |------|---------|----------|
 | `scripts/seed-helpers.ts` | Reusable seed utilities | Writing tests/setup |
-| `scripts/seed-api.ts` | Quick dev setup | Local development |
-| `scripts/seed-organization.ts` | Bulk org seeder | Load testing |
-| `scripts/seed-team.ts` | Bulk team seeder | Multi-user testing |
+| `scripts/seed.ts` | Quick dev setup | Local development |
+| `scripts/seed.ts` | Bulk org seeder | Load testing |
+| `scripts/seed.ts` | Bulk team seeder | Multi-user testing |
 | `SEED_DATA.md` | Seed documentation | Setting up test data |
 
 ### API Endpoints (Secured in Phase 2.0)
@@ -90,7 +90,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 export ORG_ID="org-123456"
 export TOKEN="your-firebase-id-token"
 
-curl -X POST http://localhost:3000/api/your/endpoint \
+curl -X POST http://localhost:5202/api/your/endpoint \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"orgId":"'$ORG_ID'", ...}'
@@ -119,7 +119,7 @@ const { success, data, error } = await response.json();
 
 **For manual testing:**
 ```bash
-npm run seed:api
+npm run seed:unified
 # Output example:
 # Organization: org-1735689123456
 # test@example.com / TestPassword123!
@@ -375,7 +375,7 @@ See `src/lib/firebase/collections.ts` for full types.
 
 ## 📞 Test Credentials
 
-**After running `npm run seed:api`:**
+**After running `npm run seed:unified`:**
 
 ```
 Organization: org-{timestamp}
@@ -402,7 +402,7 @@ Get IDs from seed output or Firestore emulator UI (localhost:4000).
 
 ## 🚀 Next Steps
 
-1. **Run seed**: `npm run seed:api`
+1. **Run seed**: `npm run seed:unified`
 2. **Choose endpoint**: See API_ENDPOINTS.md
 3. **Test locally**: Use cURL or Postman
 4. **Connect form**: Link frontend component to endpoint

@@ -1,40 +1,77 @@
 // src/app/[lang]/layout.tsx
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { AuthProvider } from "./providers/AuthProvider";
+import { OrganizationProvider } from "./providers/OrganizationProvider";
+import { GeolocationProvider } from "./providers/GeolocationProvider";
+import { SessionProvider } from "./providers/SessionProvider";
 import ThemeRegistry from "./components/ThemeRegistry";
-import Navbar from "./components/Navbar"; // Importujemy Navbar
-import { languages } from "@/lib/i18n/settings";
-
-const inter = Inter({ subsets: ["latin"] });
+import ClientShell from "./components/ClientShell";
+import { NotificationProvider } from "./components/Notification";
+import ErrorBoundary from "./components/ErrorBoundary";
+import InstallPWA from "./components/InstallPWA";
+import RootRouter from "./components/RootRouter";
+import SlotZeroBanner from "./components/SlotZeroBanner";
+import SessionDashboard from "./components/SessionDashboard";
+import DevSessionDiagnostics from "./components/DevSessionDiagnostics";
+import { activeLanguages } from "@/lib/i18n/settings";
 
 export const metadata: Metadata = {
-  title: "gastroo_space",
-  description: "Twój pilot do zarządzania restauracją!",
+  applicationName: 'Gastroo Space',
+  title: 'Gastroo Space',
+  description: 'Your pilot for restaurant management.',
+  manifest: '/manifest.webmanifest',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Gastroo',
+  },
+  formatDetection: { telephone: false },
+  icons: {
+    apple: '/icons/icon-192x192.png',
+  },
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+  themeColor: [
+    { media: '(prefers-color-scheme: dark)',  color: '#111720' },
+    { media: '(prefers-color-scheme: light)', color: '#f9f9ff' },
+  ],
 };
 
 export async function generateStaticParams() {
-  return languages.map((lng) => ({ lang: lng }));
+  return activeLanguages.map((lng) => ({ lang: lng }));
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
-  params: { lang },
 }: {
   children: React.ReactNode;
-  params: { lang: string };
 }) {
   return (
-    <html lang={lang} dir="ltr" suppressHydrationWarning={true}>
-      <body className={inter.className}>
-        <AuthProvider>
-          <ThemeRegistry>
-            <Navbar /> {/* Navbar jest częścią layoutu */}
-            <main>{children}</main> {/* Tutaj renderuje się treść strony */}
-          </ThemeRegistry>
-        </AuthProvider>
-      </body>
-    </html>
+    <AuthProvider>
+      <OrganizationProvider>
+        <GeolocationProvider>
+          <SessionProvider>
+            <ThemeRegistry>
+              <NotificationProvider>
+                <ErrorBoundary>
+                  <RootRouter>
+                    <ClientShell>{children}</ClientShell>
+                  </RootRouter>
+                  <SlotZeroBanner />
+                  <SessionDashboard />
+                  <InstallPWA />
+                  {process.env.NODE_ENV === 'development' && <DevSessionDiagnostics />}
+                </ErrorBoundary>
+              </NotificationProvider>
+            </ThemeRegistry>
+          </SessionProvider>
+        </GeolocationProvider>
+      </OrganizationProvider>
+    </AuthProvider>
   );
 }

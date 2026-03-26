@@ -1,0 +1,42 @@
+[
+  {
+    "email":       "owner2@gastroo.dev",
+    "password":    "Owner123!",
+    "displayName": "Aleksandra Wlascicielka",
+    "firstName":   "Aleksandra",
+    "lastName":    "Wlascicielka",
+    "role":        "owner",
+    "pin":         "1112",
+    "phone":       "+48 501 100 200"
+  },
+  {
+    "email":       "manager2@gastroo.dev",
+    "password":    "Manager123!",
+    "displayName": "Oliwia Manager",
+    "firstName":   "Oliwia",
+    "lastName":    "Manager",
+    "role":        "manager",
+    "pin":         "2233",
+    "phone":       "+48 502 200 300"
+  },
+  {
+    "email":       "waiter3@gastroo.dev",
+    "password":    "Kelner123!",
+    "displayName": "Kamil Kelner",
+    "firstName":   "Kamil",
+    "lastName":    "Kelner",
+    "role":        "waiter",
+    "pin":         "3335",
+    "phone":       "+48 503 300 400"
+  },
+  {
+    "email":       "chef3@gastroo.dev",
+    "password":    "Chef123!",
+    "displayName": "Robert Szef Kuchni",
+    "firstName":   "Robert",
+    "lastName":    "Szef Kuchni",
+    "role":        "chef",
+    "pin":         "4447",
+    "phone":       "+48 504 400 500"
+  }
+]

@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wc:*)",
+      "Bash(ls:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx eslint:*)",
+      "Bash(npx tsx:*)",
+      "Bash(for lang:*)",
+      "Bash(do)",
+      "Bash(if grep:*)",
+      "Bash(then)",
+      "Bash(echo \"OK: $lang\")",
+      "Bash(else)",
+      "Bash(echo \"WAITING: $lang\")",
+      "Bash(fi)",
+      "Bash(done)",
+      "Bash(echo \"  PENDING: $lang\")",
+      "Bash(echo \"  DONE:    $lang\")",
+      "Bash(find /Users/mmierzej/Desktop/code/gastroo-space/src/app/[lang]/components -name \"EmotionCache*\" -type f)",
+      "Bash(npx playwright:*)",
+      "Bash(node -e \":*)",
+      "Bash(bash scripts/start-dev.sh)"
+    ]
+  }
+}

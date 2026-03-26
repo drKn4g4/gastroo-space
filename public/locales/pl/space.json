@@ -1,0 +1,23 @@
+{
+  "tabs": {
+    "start": "Start",
+    "map": "Mapa",
+    "calendar": "Kalendarz",
+    "profile": "Profil"
+  },
+  "calendar": {
+    "title": "Kalendarz",
+    "subtitle": "Tu pojawi się widok rezerwacji, eventów i promocji w Twojej okolicy lub wybranym mieście.",
+    "section_events": "Eventy",
+    "section_promotions": "Promocje",
+    "add_to_gcal": "Dodaj do Google Calendar",
+    "recurring": "Cyklicznie",
+    "promo_schedule_unknown": "Godziny promocji: —",
+    "empty": "Brak nadchodzących eventów lub promocji.",
+    "load_error": "Nie udało się pobrać kalendarza."
+  },
+  "foodie_search": {
+    "title": "Wyszukiwarka foodie",
+    "subtitle": "Szukaj po daniach, składnikach lub lokalach. (UI w przygotowaniu)"
+  }
+}

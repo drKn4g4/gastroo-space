@@ -1,0 +1,485 @@
+{
+  "categories": [
+    {
+      "id": "cat-przystawki",
+      "name": "Przystawki",
+      "description": "Lekkie dania na dobry początek",
+      "order": 0,
+      "items": [
+        {
+          "name": "Tatar wołowy",
+          "price": 42,
+          "description": "Świeży tatar z polędwicy wołowej, kapary, cebula, żółtko przepiórcze, tost",
+          "available": true,
+          "itemType": "dish",
+          "allergens": ["eggs", "mustard"],
+          "macros": { "calories": 185, "protein": 22, "fat": 11, "carbs": 2 }
+        },
+        {
+          "name": "Bruschetta",
+          "price": 28,
+          "description": "Chrupiące grzanki z pomidorami malinowymi, bazylią i oliwą z oliwek",
+          "available": true,
+          "itemType": "dish",
+          "allergens": ["gluten"],
+          "vegetarian": true,
+          "macros": { "calories": 165, "protein": 5, "fat": 6, "carbs": 22, "fiber": 2 }
+        },
+        {
+          "name": "Carpaccio z łososia",
+          "price": 38,
+          "description": "Cienkie plastry wędzonego łososia, koper, kaparki, sos cytrynowy",
+          "available": true,
+          "itemType": "dish",
+          "allergens": ["fish", "soybeans"],
+          "macros": { "calories": 145, "protein": 18, "fat": 7, "carbs": 2 }
+        },
+        {
+          "name": "Zupa dnia",
+          "price": 22,
+          "description": "Sezonowa zupa przygotowana przez szefa kuchni",
+          "available": true,
+          "itemType": "dish",
+          "allergens": ["celery"],
+          "vegetarian": true,
+          "macros": { "calories": 160, "protein": 6, "fat": 8, "carbs": 18 }
+        },
+        {
+          "name": "Rolada z larda",
+          "price": 32,
+          "description": "Zwijana wędlina domowa, musztarda, marynowane warzywa, chleb żytni",
+          "available": true,
+          "itemType": "dish",
+          "allergens": ["gluten", "mustard"],
+          "macros": { "calories": 220, "protein": 14, "fat": 16, "carbs": 8 }
+        },
+        {
+          "name": "Pasztet domowy",
+          "price": 30,
+          "description": "Pasztet podawany z konfiturą z żurawin i toastami",
+          "available": true,
+          "itemType": "dish",
+          "allergens": ["gluten", "eggs", "milk"],
+          "macros": { "calories": 245, "protein": 12, "fat": 18, "carbs": 10 }
+        }
+      ]
+    },
+    {
+      "id": "cat-dania-glowne",
+      "name": "Dania główne",
+      "description": "Autorskie propozycje szefa kuchni",
+      "order": 1,
+      "items": [
+        {
+          "name": "Stek z polędwicy",
+          "price": 118,
+          "description": "Polędwica wołowa 250g, sos bordelaise, frytki, sałata",
+          "available": true,
+          "itemType": "dish",
+          "macros": { "calories": 450, "protein": 45, "fat": 28, "carbs": 12 }
+        },
+        {
+          "name": "Łosoś pieczony",
+          "price": 88,
+          "description": "Filet z łososia atlantyckiego, risotto szparagowe, sos masłowy",
+          "available": true,
+          "itemType": "dish",
+          "allergens": ["fish", "milk"],
+          "macros": { "calories": 385, "protein": 42, "fat": 18, "carbs": 22 }
+        },
+        {
+          "name": "Risotto grzybowe",
+          "price": 68,
+          "description": "Risotto z borowikami i kurkami, parmezan, truflowe oliwa",
+          "available": true,
+          "itemType": "dish",
+          "allergens": ["milk", "celery", "sulphites"],
+          "vegetarian": true,
+          "macros": { "calories": 420, "protein": 14, "fat": 16, "carbs": 58, "fiber": 3 }
+        },
+        {
+          "name": "Burger bistro",
+          "price": 58,
+          "description": "Wołowina 180g, sery cheddar i szwajcarski, sałata, pomidor, ogórek, sos burger, bułka brioche",
+          "available": true,
+          "itemType": "dish",
+          "allergens": ["gluten", "eggs", "milk", "mustard", "sesame"],
+          "macros": { "calories": 680, "protein": 38, "fat": 38, "carbs": 52 }
+        },
+        {
+          "name": "Filet z dorsza",
+          "price": 72,
+          "description": "Smażony dorsz atlantycki, puree z kalafiora, kapary, sos cytrynowy",
+          "available": true,
+          "itemType": "dish",
+          "allergens": ["fish", "gluten", "milk"],
+          "macros": { "calories": 360, "protein": 36, "fat": 18, "carbs": 16 }
+        },
+        {
+          "name": "Kurczak miód-soja",
+          "price": 62,
+          "description": "Pierś z kurczaka w glazurze miodowo-sojowej, ryż jaśminowy, brokuły",
+          "available": true,
+          "itemType": "dish",
+          "allergens": ["soybeans", "sesame"],
+          "macros": { "calories": 340, "protein": 38, "fat": 8, "carbs": 28, "fiber": 2 }
+        },
+        {
+          "name": "Pasta Carbonara",
+          "price": 54,
+          "description": "Spaghetti, pancetta, żółtko, parmezan, czarny pieprz",
+          "available": true,
+          "itemType": "dish",
+          "allergens": ["gluten", "eggs", "milk"],
+          "macros": { "calories": 520, "protein": 24, "fat": 22, "carbs": 62 }
+        },
+        {
+          "name": "Tofu ze strączkami",
+          "price": 52,
+          "description": "Smażone tofu, ciecierzyca, szpinak, sos curry, ryż basmati",
+          "available": true,
+          "itemType": "dish",
+          "allergens": ["soybeans", "sesame"],
+          "vegetarian": true,
+          "vegan": true,
+          "macros": { "calories": 285, "protein": 18, "fat": 10, "carbs": 36, "fiber": 8 }
+        }
+      ]
+    },
+    {
+      "id": "cat-desery",
+      "name": "Desery",
+      "description": "Słodkie zakończenie wizyty",
+      "order": 2,
+      "items": [
+        {
+          "name": "Tiramisu",
+          "price": 32,
+          "description": "Klasyczne tiramisu — mascarpone, biszkopty nasączone espresso, kakao",
+          "available": true,
+          "itemType": "dish",
+          "allergens": ["eggs", "milk", "gluten"],
+          "vegetarian": true,
+          "macros": { "calories": 340, "protein": 7, "fat": 18, "carbs": 38 }
+        },
+        {
+          "name": "Sernik nowojorski",
+          "price": 28,
+          "description": "Kremowy sernik na spodzie z ciasteczek, sos truskawkowy",
+          "available": true,
+          "itemType": "dish",
+          "allergens": ["eggs", "milk", "gluten"],
+          "vegetarian": true,
+          "macros": { "calories": 380, "protein": 8, "fat": 24, "carbs": 35 }
+        },
+        {
+          "name": "Brownie czekoladowy",
+          "price": 26,
+          "description": "Czekoladowe brownie z orzechami, lody waniliowe, karmelem",
+          "available": true,
+          "itemType": "dish",
+          "allergens": ["gluten", "eggs", "milk", "nuts"],
+          "vegetarian": true,
+          "macros": { "calories": 295, "protein": 5, "fat": 16, "carbs": 34 }
+        },
+        {
+          "name": "Panna cotta",
+          "price": 24,
+          "description": "Delikatna włoska panna cotta z sosem z owoców leśnych",
+          "available": true,
+          "itemType": "dish",
+          "allergens": ["milk"],
+          "vegetarian": true,
+          "macros": { "calories": 260, "protein": 4, "fat": 14, "carbs": 30 }
+        },
+        {
+          "name": "Sorbet malinowy",
+          "price": 20,
+          "description": "Lekki sorbet z maliny, mięta, wafelek",
+          "available": true,
+          "itemType": "dish",
+          "vegetarian": true,
+          "vegan": true,
+          "glutenFree": true,
+          "macros": { "calories": 140, "protein": 1, "fat": 0, "carbs": 34, "fiber": 2 }
+        }
+      ]
+    },
+    {
+      "id": "cat-napoje",
+      "name": "Napoje",
+      "description": "Gorące, zimne i inne",
+      "order": 3,
+      "items": [
+        {
+          "name": "Espresso",
+          "price": 12,
+          "description": "Podwójne espresso z wybranych ziaren single origin",
+          "available": true,
+          "itemType": "beverage",
+          "vegan": true,
+          "glutenFree": true,
+          "macros": { "calories": 5, "protein": 0, "fat": 0, "carbs": 1 }
+        },
+        {
+          "name": "Cappuccino",
+          "price": 16,
+          "description": "Podwójne espresso z spienianym mlekiem",
+          "available": true,
+          "itemType": "beverage",
+          "allergens": ["milk"],
+          "vegetarian": true,
+          "macros": { "calories": 75, "protein": 4, "fat": 3, "carbs": 8 }
+        },
+        {
+          "name": "Flat White",
+          "price": 16,
+          "description": "Ristretto z aksamitnym mlekiem",
+          "available": true,
+          "itemType": "beverage",
+          "allergens": ["milk"],
+          "vegetarian": true,
+          "macros": { "calories": 65, "protein": 4, "fat": 3, "carbs": 6 }
+        },
+        {
+          "name": "Americano",
+          "price": 14,
+          "description": "Espresso z gorącą wodą",
+          "available": true,
+          "itemType": "beverage",
+          "vegan": true,
+          "glutenFree": true,
+          "macros": { "calories": 10, "protein": 0, "fat": 0, "carbs": 2 }
+        },
+        {
+          "name": "Herbata czarna",
+          "price": 12,
+          "description": "Parzone liście herbaty Darjeeling, menu sezonowe",
+          "available": true,
+          "itemType": "beverage",
+          "vegan": true,
+          "glutenFree": true,
+          "macros": { "calories": 2, "protein": 0, "fat": 0, "carbs": 0 }
+        },
+        {
+          "name": "Herbata zielona",
+          "price": 12,
+          "description": "Japońska herbata Sencha",
+          "available": true,
+          "itemType": "beverage",
+          "vegan": true,
+          "glutenFree": true,
+          "macros": { "calories": 2, "protein": 0, "fat": 0, "carbs": 0 }
+        },
+        {
+          "name": "Smoothie owocowe",
+          "price": 22,
+          "description": "Sezonowe smoothie z owocami, jogurtem i miodem",
+          "available": true,
+          "itemType": "beverage",
+          "allergens": ["milk"],
+          "vegetarian": true,
+          "macros": { "calories": 180, "protein": 5, "fat": 2, "carbs": 38, "fiber": 3 }
+        },
+        {
+          "name": "Woda mineralna 0,5L",
+          "price": 8,
+          "description": "Woda gazowana lub niegazowana Cisowianka",
+          "available": true,
+          "itemType": "beverage",
+          "vegan": true,
+          "glutenFree": true,
+          "macros": { "calories": 0, "protein": 0, "fat": 0, "carbs": 0 }
+        }
+      ]
+    },
+    {
+      "id": "cat-wina",
+      "name": "Wina & Alkohole",
+      "description": "Starannie dobrana karta win i alkoholi",
+      "order": 4,
+      "items": [
+        {
+          "name": "Wino białe Casa Tapia",
+          "price": 32,
+          "description": "Sauvignon Blanc, Rueda, Hiszpania — świeże, cytrusowe, mineralné",
+          "available": true,
+          "itemType": "beverage",
+          "allergens": ["sulphites"],
+          "macros": { "calories": 95, "protein": 0, "fat": 0, "carbs": 2 }
+        },
+        {
+          "name": "Wino czerwone Rioja",
+          "price": 38,
+          "description": "Tempranillo, Reserva, Rioja — owocowe, tanniny, długi finisz",
+          "available": true,
+          "itemType": "beverage",
+          "allergens": ["sulphites"],
+          "macros": { "calories": 100, "protein": 0, "fat": 0, "carbs": 3 }
+        },
+        {
+          "name": "Piwo rzemieślnicze",
+          "price": 18,
+          "description": "Selekcja lokalnych piw kraftowych — IPA, Stout lub Witbier",
+          "available": true,
+          "itemType": "beverage",
+          "allergens": ["gluten"],
+          "macros": { "calories": 165, "protein": 2, "fat": 0, "carbs": 14 }
+        },
+        {
+          "name": "Piwo jasne Żywiec",
+          "price": 14,
+          "description": "Klasyczne piwo lager, 500ml",
+          "available": true,
+          "itemType": "beverage",
+          "allergens": ["gluten"],
+          "macros": { "calories": 145, "protein": 1, "fat": 0, "carbs": 12 }
+        },
+        {
+          "name": "Wódka 40ml",
+          "price": 20,
+          "description": "Polska wódka premium",
+          "available": true,
+          "itemType": "beverage",
+          "glutenFree": true,
+          "macros": { "calories": 95, "protein": 0, "fat": 0, "carbs": 0 }
+        },
+        {
+          "name": "Whisky 40ml",
+          "price": 28,
+          "description": "Scotch single malt lub blended — pytaj kelnera",
+          "available": true,
+          "itemType": "beverage",
+          "macros": { "calories": 95, "protein": 0, "fat": 0, "carbs": 0 }
+        },
+        {
+          "name": "Aperol Spritz",
+          "price": 34,
+          "description": "Aperol, prosecco, woda sodowa, pomarańcza",
+          "available": true,
+          "itemType": "cocktail",
+          "allergens": ["sulphites"],
+          "macros": { "calories": 160, "protein": 0, "fat": 0, "carbs": 16 }
+        }
+      ]
+    },
+    {
+      "id": "cat-koktajle",
+      "name": "Koktajle",
+      "description": "Autorskie i klasyczne drinki",
+      "order": 5,
+      "items": [
+        {
+          "name": "Margarita",
+          "price": 38,
+          "description": "Tequila, Triple Sec, świeży sok z limonki, sól",
+          "available": true,
+          "itemType": "cocktail",
+          "allergens": ["sulphites"],
+          "macros": { "calories": 185, "protein": 0, "fat": 0, "carbs": 14 }
+        },
+        {
+          "name": "Mojito",
+          "price": 36,
+          "description": "Biały rum, mięta, limonka, cukier trzcinowy, woda sodowa",
+          "available": true,
+          "itemType": "cocktail",
+          "macros": { "calories": 175, "protein": 0, "fat": 0, "carbs": 22 }
+        },
+        {
+          "name": "Cosmopolitan",
+          "price": 40,
+          "description": "Wódka, Triple Sec, sok żurawinowy, limonka",
+          "available": true,
+          "itemType": "cocktail",
+          "allergens": ["sulphites"],
+          "macros": { "calories": 180, "protein": 0, "fat": 0, "carbs": 18 }
+        },
+        {
+          "name": "Piña Colada",
+          "price": 38,
+          "description": "Rum, mleczko kokosowe, sok ananasowy, lód",
+          "available": true,
+          "itemType": "cocktail",
+          "allergens": ["sulphites"],
+          "macros": { "calories": 215, "protein": 1, "fat": 7, "carbs": 26 }
+        },
+        {
+          "name": "Old Fashioned",
+          "price": 44,
+          "description": "Bourbon, Angostura bitters, cukier, skórka pomarańczowa",
+          "available": true,
+          "itemType": "cocktail",
+          "macros": { "calories": 155, "protein": 0, "fat": 0, "carbs": 4 }
+        }
+      ]
+    },
+    {
+      "id": "cat-dodatki",
+      "name": "Dodatki",
+      "description": "Sosy, garnisz i inne",
+      "order": 6,
+      "items": [
+        {
+          "name": "Cytryna/Lime",
+          "price": 3,
+          "description": "Świeże owoce do napojów",
+          "available": true,
+          "itemType": "product",
+          "vegan": true,
+          "glutenFree": true,
+          "macros": { "calories": 5, "protein": 0, "fat": 0, "carbs": 1 }
+        },
+        {
+          "name": "Sos Holenderski",
+          "price": 8,
+          "description": "Klasyczny sos emulsyjny do steków",
+          "available": true,
+          "itemType": "product",
+          "allergens": ["eggs", "milk"],
+          "vegetarian": true,
+          "macros": { "calories": 125, "protein": 2, "fat": 14, "carbs": 0 }
+        },
+        {
+          "name": "Sos Béarnaise",
+          "price": 8,
+          "description": "Masło klarowane, estragón, żółtko, ocet",
+          "available": true,
+          "itemType": "product",
+          "allergens": ["eggs", "milk", "mustard"],
+          "vegetarian": true,
+          "macros": { "calories": 130, "protein": 2, "fat": 14, "carbs": 1 }
+        },
+        {
+          "name": "Sos Tatarski",
+          "price": 6,
+          "description": "Majonez, ogórki, kapary, cebulka",
+          "available": true,
+          "itemType": "product",
+          "allergens": ["eggs", "mustard"],
+          "macros": { "calories": 110, "protein": 1, "fat": 11, "carbs": 3 }
+        },
+        {
+          "name": "Pieczywo i masło",
+          "price": 6,
+          "description": "Domowe pieczywo z masłem ziołowym",
+          "available": true,
+          "itemType": "product",
+          "allergens": ["gluten", "milk"],
+          "vegetarian": true,
+          "macros": { "calories": 165, "protein": 5, "fat": 8, "carbs": 20 }
+        },
+        {
+          "name": "Frytki",
+          "price": 16,
+          "description": "Domowe frytki z soli morską",
+          "available": true,
+          "itemType": "dish",
+          "vegan": true,
+          "glutenFree": true,
+          "macros": { "calories": 280, "protein": 5, "fat": 14, "carbs": 36 }
+        }
+      ]
+    }
+  ]
+}

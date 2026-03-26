@@ -1,0 +1,22 @@
+{
+  "orders": {
+    "title": "POS / Orders",
+    "mockup": "Mockup",
+    "open_tables": "Open tables",
+    "in_kitchen": "In kitchen",
+    "ready_to_pickup": "Ready to pickup",
+    "today_total": "Today's total",
+    "table": "Table",
+    "items": "Items",
+    "status": "Status",
+    "total": "Total",
+    "minutes": "Minutes",
+    "open": "Open",
+    "kitchen": "In kitchen",
+    "ready": "Ready",
+    "billed": "Billed",
+    "currency": "{{amount}} PLN",
+    "no_access": "No access to the orders module.",
+    "pos_coming_soon": "Full POS module with table support, bill splitting, and fiscal printer integration — coming soon."
+  }
+}

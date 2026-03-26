@@ -96,7 +96,7 @@ await helper.deleteOrganization(orgId); // Cleanup
 - Works with both emulator and production
 - 350 lines of well-documented code
 
-#### 2. Quick Development Seed (`scripts/seed-api.ts`)
+#### 2. Quick Development Seed (`scripts/seed.ts`)
 
 **What it creates:**
 - 1 Organization (with owner)
@@ -106,7 +106,7 @@ await helper.deleteOrganization(orgId); // Cleanup
 - 6 Menu items
 
 **Features:**
-- Single command: `npm run seed:api`
+- Single command: `npm run seed:unified`
 - Works with Firebase emulator automatically
 - Outputs test credentials and IDs
 - ~5 seconds to complete
@@ -128,13 +128,13 @@ Password: TestPassword123!
 
 #### 3. Bulk Seeders
 
-**`scripts/seed-organization.ts`** - Create multiple restaurants
+**`scripts/seed.ts`** - Create multiple restaurants
 - Configure: `RESTAURANT_COUNT=5`, `TABLES_PER_RESTAURANT=10`
 - Good for load testing
 - Creates full menu structure per restaurant
 
-**`scripts/seed-team.ts`** - Add team members to existing org
-- Use: `ORG_ID=org-123 npm run seed:team`
+**`scripts/seed.ts`** - Add team members to existing org
+- Use: `ORG_ID=org-123 npm run seed:unified`
 - Adds owner, manager, waiter automatically
 - Handles existing users gracefully
 
@@ -199,13 +199,13 @@ owner     → all + team/org management
 
 ### Phase 2.1: Seed Utilities
 4. `scripts/seed-helpers.ts` - Reusable SeedHelper class (350 lines)
-5. `scripts/seed-api.ts` - Quick dev environment setup (180 lines)
-6. `scripts/seed-organization.ts` - Bulk organization seeder (150 lines)
-7. `scripts/seed-team.ts` - Team member bulk seeder (150 lines)
+5. `scripts/seed.ts` - Quick dev environment setup (180 lines)
+6. `scripts/seed.ts` - Bulk organization seeder (150 lines)
+7. `scripts/seed.ts` - Team member bulk seeder (150 lines)
 8. `SEED_DATA.md` - Comprehensive seed guide (380 lines)
 
 ### Updated
-- `package.json` - Added `seed:api`, `seed:org`, `seed:team` commands
+- `package.json` - Added `seed:unified`, `seed:unified`, `seed:unified` commands
 
 **Total Code**: ~1200 lines added  
 **Total Documentation**: ~880 lines added
@@ -235,7 +235,7 @@ owner     → all + team/org management
 npm run dev:emulators
 
 # In another terminal, seed data
-npm run seed:api
+npm run seed:unified
 
 # Now use credentials:
 # Email: api-owner@gastroo.dev
@@ -263,9 +263,9 @@ after(async () => {
 
 ### Manual Testing
 ```bash
-ORG_ID=$(npm run seed:api 2>&1 | grep "Organization:" | cut -d' ' -f3)
+ORG_ID=$(npm run seed:unified 2>&1 | grep "Organization:" | cut -d' ' -f3)
 
-curl -X POST http://localhost:3000/api/menu/create \
+curl -X POST http://localhost:5202/api/menu/create \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d "{\"orgId\": \"$ORG_ID\", ...}"
@@ -289,11 +289,11 @@ curl -X POST http://localhost:3000/api/menu/create \
 
 ```bash
 # Quick setup
-npm run seed:api
+npm run seed:unified
 
 # Bulk operations
-npm run seed:org                           # Full org seed
-ORG_ID=org-123 npm run seed:team          # Add team members
+npm run seed:unified                           # Full org seed
+ORG_ID=org-123 npm run seed:unified          # Add team members
 
 # Development
 npm run dev:emulators                     # Start emulator + seed

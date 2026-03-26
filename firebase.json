@@ -1,67 +1,54 @@
 {
-  "emulators": 
+  "hosting": [
     {
-    "apphosting": {
-      "port": 5002,
-      "rootDirectory": "./",
-      "startCommand": "npm run dev"
-    },
-    "auth": {
-      "port": 9099
-    },
-    "functions": {
-      "port": 5001
-    },
-    "firestore": {
-      "port": 8080
-    },
-    "database": {
-      "port": 9000
-    },
-    "hosting": {
-      "port": 5000
-    },
-    "pubsub": {
-      "port": 8085
-    },
-    "storage": {
-      "port": 9199
-    },
-    "eventarc": {
-      "port": 9299
-    },
-    "tasks": {
-      "port": 9499
-    },
-    "ui": {
-      "enabled": true
-    },
-    "singleProjectMode": true
-  },
-  
-  "firestore": {
-    "database": "(default)",
-    "location": "eur3",
-    "rules": "firestore.rules",
-    "indexes": "firestore.indexes.json"
-  },
-  "functions": [
-    {
-      "source": "functions",
-      "codebase": "default",
-      "predeploy": [
-        "npm --prefix \"$RESOURCE_DIR\" run lint",
-        "npm --prefix \"$RESOURCE_DIR\" run build"
-      ],
+      "target": "prod",
+      "public": "public-static",
       "ignore": [
-        "node_modules",
-        ".git",
-        "firebase-debug.log",
-        "firebase-debug.*.log",
-        "*.local"
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "rewrites": [
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ]
+    },
+    {
+      "target": "dev",
+      "public": "public",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "rewrites": [
+        {
+          "source": "/api/**",
+          "function": "api"
+        },
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
       ]
     }
   ],
+  "functions": {
+    "source": "functions",
+    "codebase": "default",
+    "predeploy": [
+      "npm --prefix \"$RESOURCE_DIR\" run build"
+    ],
+    "ignore": [
+      "node_modules",
+      ".git",
+      "firebase-debug.log",
+      "firebase-debug.*.log",
+      "*.local"
+    ]
+  },
   "apphosting": {
     "backendId": "gastroo-be",
     "rootDir": "/",
@@ -73,25 +60,44 @@
       "functions"
     ]
   },
-  "hosting": {
-    "source": ".",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
-    "frameworksBackend": {
-      "region": "europe-west1"
-    }
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
   },
   "storage": {
     "rules": "storage.rules"
   },
+  "database": {
+    "rules": "database.rules.json"
+  },
+  "emulators": {
+    "auth": { "port": 9099 },
+    "functions": { "port": 5001 },
+    "firestore": { "port": 8080 },
+    "database": { "port": 9000 },
+    "hosting": { "port": 5000 },
+    "pubsub": { "port": 8085 },
+    "storage": { "port": 9199 },
+    "eventarc": { "port": 9299 },
+    "tasks": { "port": 9499 },
+    "dataconnect": { "port": 5500 },
+    "apphosting": {
+      "port": 5202,
+      "rootDirectory": "./",
+      "startCommand": "bash -c 'sleep 2 && NEXT_PUBLIC_USE_EMULATORS=true npx next dev --turbopack --port 5202 --hostname 127.0.0.1'"
+    },
+    "ui": {
+      "enabled": true,
+      "port": 4000
+    },
+    "import": "./.firebase/emulator-data",
+    "exportOnExit": true,
+    "singleProjectMode": true
+  },
   "remoteconfig": {
     "template": "remoteconfig.template.json"
   },
-  "extensions": {},
-  "database": {
-    "rules": "database.rules.json"
+  "dataconnect": {
+    "source": "dataconnect"
   }
 }

@@ -7,8 +7,41 @@ This guide explains how to set up test data for development and testing with the
 There are three ways to seed data:
 
 1. **Existing schema** (`scripts/seed.ts`) - Full emulator setup with demo restaurants
-2. **New API schema** (`scripts/seed-api.ts`) - Organizations and new permission model
+2. **New API schema** (`scripts/seed.ts`) - Organizations and new permission model
 3. **Manual scripts** - Fine-grained control with helpers
+
+Canonical import/export format for seed files (used outside automated tests too):
+
+```json
+{
+  "firestore": {
+    "organizations": [{ "id": "demo-org", "name": "..." }],
+    "users": [{ "id": "uid-1", "email": "..." }]
+  },
+  "meta": {
+    "exportedAt": "2026-03-17T10:00:00.000Z",
+    "collections": ["organizations", "users"],
+    "schemaVersion": "1.1.0",
+    "profile": "core"
+  }
+}
+```
+
+Notes:
+- `/api/seed/export` now returns this canonical shape.
+- `/api/seed/import` accepts both this shape and legacy flat payloads for backward compatibility.
+- If `collections` is omitted in import request, all collections from the file are imported.
+- `mode=strict` (default) stops on first import problem and returns HTTP 400 with failure report.
+- `mode=best-effort` continues import and returns a summary with failures.
+- Export supports profile-based defaults: `profile=core|demo|integration`.
+
+## Seed API contract checks (CI)
+
+- Dedicated script: `npm run test:seed:contracts`
+- Covered tests:
+  - `src/app/api/seed/_lib/__tests__/seed-format.test.ts`
+  - `src/app/api/seed/__tests__/seed-routes.integration.test.ts`
+- CI runs this contract job only when seed-related files change (`src/app/api/seed/**`, `swagger-seed.yaml`, seed docs).
 
 ---
 
@@ -22,11 +55,11 @@ npm run dev:emulators
 This runs:
 - Firebase emulator suite
 - `scripts/seed.ts` (existing schema)
-- `scripts/seed-api.ts` (new API schema)
+- `scripts/seed.ts` (new API schema)
 
 ### Run just the new API schema
 ```bash
-npm run seed:api
+npm run seed:unified
 ```
 
 Creates a fresh test environment with:
@@ -86,7 +119,7 @@ await helper.createBooking(orgId, restaurantId, tableId, bookingData);
 await helper.deleteOrganization(orgId);
 ```
 
-### `scripts/seed-api.ts`
+### `scripts/seed.ts`
 All-in-one development seed:
 - Creates organization with owner
 - Creates manager and staff members
@@ -97,10 +130,10 @@ All-in-one development seed:
 
 **Run:**
 ```bash
-npm run seed:api
+npm run seed:unified
 ```
 
-### `scripts/seed-organization.ts`
+### `scripts/seed.ts`
 Legacy bulk organization seeder:
 - Creates multiple restaurants
 - Creates multiple tables per restaurant
@@ -109,10 +142,10 @@ Legacy bulk organization seeder:
 
 **Run:**
 ```bash
-ORG_ID=org-123 RESTAURANT_COUNT=5 npx ts-node scripts/seed-organization.ts
+ORG_ID=org-123 RESTAURANT_COUNT=5 npx ts-node scripts/seed.ts
 ```
 
-### `scripts/seed-team.ts`
+### `scripts/seed.ts`
 Add team members to existing organization:
 - Creates/links multiple users
 - Assigns roles and permissions
@@ -120,7 +153,7 @@ Add team members to existing organization:
 
 **Run:**
 ```bash
-ORG_ID=org-123 npx ts-node scripts/seed-team.ts
+ORG_ID=org-123 npx ts-node scripts/seed.ts
 ```
 
 ---
@@ -226,7 +259,7 @@ Password: Kelner123!
 
 ### Default Test IDs
 
-After running `npm run seed:api`:
+After running `npm run seed:unified`:
 
 ```bash
 ORG_ID=org-{timestamp}
@@ -245,10 +278,10 @@ Add to `package.json`:
 {
   "scripts": {
     "seed": "npx tsx scripts/seed.ts",
-    "seed:api": "npx tsx scripts/seed-api.ts",
-    "seed:org": "npx tsx scripts/seed-organization.ts",
-    "seed:team": "npx tsx scripts/seed-team.ts",
-    "dev:emulators": "firebase emulators:start --import emulator-data && npm run seed && npm run seed:api"
+    "seed:unified": "npx tsx scripts/seed.ts",
+    "seed:unified": "npx tsx scripts/seed.ts",
+    "seed:unified": "npx tsx scripts/seed.ts",
+    "dev:emulators": "firebase emulators:start --import emulator-data && npm run seed && npm run seed:unified"
   }
 }
 ```

@@ -1,18 +1,390 @@
-rules_version='2'
+rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function getOrgMember(orgId) {
+      return get(/databases/$(database)/documents/organizations/$(orgId)/members/$(request.auth.uid));
+    }
+
+    function getUserMembership(orgId) {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)/memberships/$(orgId));
+    }
+
+    function hasUserMembership(orgId) {
+      return isAuthenticated() &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)/memberships/$(orgId)) &&
+        getUserMembership(orgId).data.status == 'active';
+    }
+
+    function hasLegacyMember(orgId) {
+      return isAuthenticated() &&
+        exists(/databases/$(database)/documents/organizations/$(orgId)/members/$(request.auth.uid));
+    }
+
+    function isOrgMember(orgId) {
+      return hasUserMembership(orgId) || hasLegacyMember(orgId);
+    }
+
+    function getEffectiveRole(orgId) {
+      return hasUserMembership(orgId)
+        ? getUserMembership(orgId).data.role
+        : getOrgMember(orgId).data.role;
+    }
+
+    function getEffectiveRestaurantIds(orgId) {
+      return hasUserMembership(orgId)
+        ? getUserMembership(orgId).data.restaurantIds
+        : getOrgMember(orgId).data.restaurantIds;
+    }
+
+    // Check if user has one of the given roles in the organization
+    function hasRole(orgId, roles) {
+      return isOrgMember(orgId) && getEffectiveRole(orgId) in roles;
+    }
+
+    // All roles that can access a given restaurant
+    function hasRestaurantAccess(orgId, restaurantId) {
+      let assignedRestaurants = getEffectiveRestaurantIds(orgId);
+      return isOrgMember(orgId) && (
+        getEffectiveRole(orgId) in ['owner', 'admin'] ||
+        restaurantId in assignedRestaurants
+      );
+    }
+
+    // ─── User profiles ────────────────────────────────────────────────────────
+    match /users/{userId} {
+      // Pozwól na read wszystkim zalogowanym (wymagane przez collectionGroup query na memberships)
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && request.auth.uid == userId;
+
+      match /memberships/{orgId} {
+        // Właściciel dokumentu + collectionGroup queries (PINpad lookup)
+        allow read: if isAuthenticated();
+        allow create, update, delete: if hasRole(orgId, ['owner', 'admin', 'manager']) || request.auth.uid == userId;
+      }
+
+      // Loyalty points per restaurant — read by the account owner only.
+      // Write is intentionally blocked here: points are mutated exclusively
+      // via the `addLoyaltyPoints` Cloud Function (Admin SDK), which bypasses
+      // these rules. This prevents clients from cheating their own balance.
+      match /loyaltyPoints/{restaurantId} {
+        allow read: if isAuthenticated() && request.auth.uid == userId;
+        allow write: if false;
+      }
+
+      match /loyaltyAccounts/{orgId} {
+        allow read: if isAuthenticated() && request.auth.uid == userId;
+        allow write: if false;
+      }
+
+      match /favoriteRestaurants/{restaurantId} {
+        allow read, write: if isAuthenticated() && request.auth.uid == userId;
+      }
+
+      match /favoriteMenuItems/{favoriteId} {
+        allow read, write: if isAuthenticated() && request.auth.uid == userId;
+      }
+    }
+
+    match /loyaltyCards/{cardId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow write: if false;
+    }
+
+    // ─── Organizations ────────────────────────────────────────────────────────
+    match /organizations/{orgId} {
+      allow create: if isAuthenticated();
+      allow read:   if isAuthenticated() &&
+                       isOrgMember(orgId);
+      allow update: if hasRole(orgId, ['owner', 'admin', 'manager']);
+      allow delete: if hasRole(orgId, ['owner']);
+
+      // Members subcollection
+      match /members/{memberId} {
+        allow read: if isAuthenticated() &&
+                       isOrgMember(orgId);
+        allow create: if hasRole(orgId, ['owner', 'admin', 'manager']);
+        allow update: if hasRole(orgId, ['owner', 'admin', 'manager']) ||
+                         request.auth.uid == memberId;
+        allow delete: if hasRole(orgId, ['owner', 'admin', 'manager']);
+      }
+
+      match /integrations/{integrationId} {
+        allow read: if isOrgMember(orgId);
+        allow write: if hasRole(orgId, ['owner', 'admin', 'manager']);
+      }
+
+      match /settings/{settingId} {
+        allow read: if isOrgMember(orgId);
+        allow write: if hasRole(orgId, ['owner', 'admin']) ||
+                        (hasRole(orgId, ['manager']) && settingId == 'permissionsMatrix');
+      }
+
+      match /promotions/{promotionId} {
+        allow read: if true;
+        allow write: if hasRole(orgId, ['owner', 'admin', 'manager']);
+      }
+
+      match /files/{fileId} {
+        allow read: if isOrgMember(orgId);
+        allow create, update: if hasRole(orgId, ['owner', 'admin', 'manager']) &&
+                                 request.resource.data.googleDriveFileId is string;
+        allow delete: if hasRole(orgId, ['owner', 'admin']);
+      }
+
+      match /logs/{logId} {
+        allow read: if hasRole(orgId, ['owner', 'admin', 'manager']);
+        allow create: if hasRole(orgId, ['owner', 'admin', 'manager']);
+        allow update, delete: if false;
+      }
+
+      // Invites
+      match /invites/{inviteId} {
+        allow read:   if isAuthenticated();
+        allow create: if hasRole(orgId, ['owner', 'admin', 'manager']);
+        // Org managers can update any invite; invited user can only accept/decline their own
+        allow update: if hasRole(orgId, ['owner', 'admin', 'manager'])
+                      || (isAuthenticated() && resource.data.email == request.auth.token.email);
+        allow delete: if hasRole(orgId, ['owner', 'admin', 'manager']);
+      }
+
+      // Restaurants
+      match /restaurants/{restaurantId} {
+        allow read:  if true;
+        allow write: if hasRole(orgId, ['owner', 'admin', 'manager']);
+
+        // Bookings
+        // - Waiter:  full CRUD (view, create, edit, delete)
+        // - Chef:    read-only (needs to know table count)
+        // - Manager+: full CRUD
+        // - Public:  create only (online booking widget)
+        match /bookings/{bookingId} {
+          // Online booking requires authentication to prevent spam
+          allow create: if isAuthenticated();
+          allow read:   if hasRestaurantAccess(orgId, restaurantId) &&
+                           hasRole(orgId, ['owner', 'admin', 'manager', 'waiter', 'chef']);
+          allow update: if hasRestaurantAccess(orgId, restaurantId) &&
+                           hasRole(orgId, ['owner', 'admin', 'manager', 'waiter']);
+          allow delete: if hasRestaurantAccess(orgId, restaurantId) &&
+                           hasRole(orgId, ['owner', 'admin', 'manager', 'waiter']);
+        }
+
+        // Menu Categories
+        // - Chef + Manager+: full write access
+        // - Public: read (QR menu)
+        match /menuCategories/{categoryId} {
+          allow read:  if true;
+          allow write: if hasRestaurantAccess(orgId, restaurantId) &&
+                          hasRole(orgId, ['owner', 'admin', 'manager', 'chef']);
+        }
+
+        // Menu Items
+        match /menuItems/{itemId} {
+          allow read:  if true;
+          allow write: if hasRestaurantAccess(orgId, restaurantId) &&
+                          hasRole(orgId, ['owner', 'admin', 'manager', 'chef']);
+        }
+
+        // Staff / team members
+        match /staff/{staffId} {
+          allow read:  if hasRestaurantAccess(orgId, restaurantId);
+          allow write: if hasRole(orgId, ['owner', 'admin', 'manager']);
+        }
+
+        // Shifts (schedule)
+        match /shifts/{shiftId} {
+          allow read:  if hasRestaurantAccess(orgId, restaurantId);
+          allow create: if isOrgMember(orgId);
+          allow update, delete: if hasRole(orgId, ['owner', 'admin', 'manager']);
+        }
+
+        // Time entries
+        match /timeEntries/{entryId} {
+          allow create: if isAuthenticated() &&
+                           request.resource.data.staffId == request.auth.uid;
+          allow read:   if isAuthenticated() && (
+                           resource.data.staffId == request.auth.uid ||
+                           hasRole(orgId, ['owner', 'admin', 'manager'])
+                         );
+          allow update: if hasRole(orgId, ['owner', 'admin', 'manager']);
+        }
+
+        // Chat messages
+        match /chatMessages/{messageId} {
+          allow read:   if hasRestaurantAccess(orgId, restaurantId);
+          allow create: if hasRestaurantAccess(orgId, restaurantId) &&
+                           request.resource.data.senderId == request.auth.uid;
+          allow update: if resource.data.senderId == request.auth.uid ||
+                           hasRole(orgId, ['owner', 'admin']);
+        }
+
+        // Tables (floor plan)
+        match /tables/{tableId} {
+          allow read:  if hasRestaurantAccess(orgId, restaurantId);
+          allow write: if hasRole(orgId, ['owner', 'admin', 'manager']);
+        }
+
+        // Sections (floor plan)
+        match /sections/{sectionId} {
+          allow read:  if hasRestaurantAccess(orgId, restaurantId);
+          allow write: if hasRole(orgId, ['owner', 'admin', 'manager']);
+        }
+
+        // Todo Tasks
+        match /todoTasks/{taskId} {
+          allow read:  if hasRestaurantAccess(orgId, restaurantId);
+          allow create: if isOrgMember(orgId);
+          allow update, delete: if hasRole(orgId, ['owner', 'admin', 'manager']) || resource.data.createdBy == request.auth.uid;
+        }
+
+        // Incidents
+        match /incidents/{incidentId} {
+          allow read:   if hasRole(orgId, ['owner', 'admin', 'manager']);
+          allow create: if hasRestaurantAccess(orgId, restaurantId);
+          allow update: if hasRole(orgId, ['owner', 'admin', 'manager']);
+        }
+      }
+
+      // Subscriptions
+      match /subscriptions/{subId} {
+        allow read:  if hasRole(orgId, ['owner', 'admin']);
+        allow write: if hasRole(orgId, ['owner']);
+      }
+
+      // Invoices
+      match /invoices/{invoiceId} {
+        allow read: if hasRole(orgId, ['owner', 'admin']);
+      }
+
+      // Events (public + staff)
+      // Public: active/scheduled events only (used by /space calendar/map)
+      // Staff: full access depending on role
+      match /events/{eventId} {
+        allow read: if (
+          (resource.data.visibility == 'public' && resource.data.status in ['active', 'scheduled'])
+          || (isAuthenticated() && isOrgMember(orgId))
+        );
+        allow create, update, delete: if hasRole(orgId, ['owner', 'admin', 'manager']);
+      }
+    }
+
+    // ─── Active Sessions (Slot Zero — dine-in table sessions) ────────────────
+    // Top-level collection so consumer queries don't require org knowledge.
+    // Participants (guestIds) can read; staff can read/write via org role.
+    match /activeSessions/{sessionId} {
+      allow read: if (
+        // DEV: otwórz odczyt dla wszystkich zalogowanych jeśli DEV_FIRESTORE_OPEN_READS == 'true'
+        exists(/databases/$(database)/documents/__env/dev_firestore_open_reads) &&
+        get(/databases/$(database)/documents/__env/dev_firestore_open_reads).data.value == true
+      ) || (
+        isAuthenticated() && (
+          // Participant can always see their own session
+          request.auth.uid in resource.data.guestIds ||
+          // Staff with restaurant access can manage sessions
+          (resource.data.get('organizationId', null) != null &&
+           resource.data.get('restaurantId', null) != null &&
+           hasRestaurantAccess(resource.data.organizationId, resource.data.restaurantId) &&
+           hasRole(resource.data.organizationId, ['owner', 'admin', 'manager', 'waiter']))
+        )
+      );
+
+      // Participants can update (add items, claim, tip, leave)
+      allow update: if isAuthenticated() && (
+        request.auth.uid in resource.data.guestIds ||
+        (hasRestaurantAccess(resource.data.organizationId, resource.data.restaurantId) &&
+         hasRole(resource.data.organizationId, ['owner', 'admin', 'manager', 'waiter']))
+      );
+
+      // Only staff can create/close sessions
+      allow create: if isAuthenticated() &&
+                       request.resource.data.organizationId is string &&
+                       request.resource.data.restaurantId is string &&
+                       hasRole(request.resource.data.organizationId, ['owner', 'admin', 'manager', 'waiter']);
+
+      allow delete: if isAuthenticated() &&
+                       hasRole(resource.data.organizationId, ['owner', 'admin', 'manager']);
+    }
+
+    // ─── Notifications (SOS waiter calls, etc.) ────────────────────────────────
+    match /notifications/{notificationId} {
+      // Staff can read notifications for their restaurant
+      allow read: if isAuthenticated() &&
+                     resource.data.get('organizationId', null) != null &&
+                     hasRole(resource.data.organizationId, ['owner', 'admin', 'manager', 'waiter']);
+
+      // Any authenticated user can create (SOS from consumer session)
+      allow create: if isAuthenticated() &&
+                       request.resource.data.organizationId is string;
+
+      // Staff can mark as read
+      allow update: if isAuthenticated() &&
+                       hasRole(resource.data.organizationId, ['owner', 'admin', 'manager', 'waiter']);
+
+      allow delete: if false;
+    }
+
+    // ─── Public / shared collections ──────────────────────────────────────────
+    match /allergens/{allergenId} {
+      allow read:  if true;
+      allow write: if false;
+    }
+
+    // ─── Global bookings collection ──────────────────────────────────────────
+    // Consumer → Staff booking flow:
+    //   1. Consumer creates with userId + organizationId + restaurantId
+    //   2. Staff reads filtered by organizationId + restaurantId (role-based)
+    match /bookings/{bookingId} {
+      allow create: if isAuthenticated() &&
+                       request.resource.data.userId == request.auth.uid &&
+                       request.resource.data.organizationId is string &&
+                       request.resource.data.restaurantId is string;
+
+      allow read: if isAuthenticated() && (
+        // Consumer sees only their own bookings
+        (resource.data.get('userId', null) == request.auth.uid) ||
+        // Staff with restaurant access sees restaurant bookings
+        (resource.data.get('organizationId', null) != null &&
+         resource.data.get('restaurantId', null) != null &&
+         hasRestaurantAccess(resource.data.organizationId, resource.data.restaurantId) &&
+         hasRole(resource.data.organizationId, ['owner', 'admin', 'manager', 'waiter', 'chef']))
+      );
+
+      allow update: if isAuthenticated() &&
+                       hasRestaurantAccess(resource.data.organizationId, resource.data.restaurantId) &&
+                       hasRole(resource.data.organizationId, ['owner', 'admin', 'manager', 'waiter']);
+
+      allow delete: if isAuthenticated() &&
+                       hasRestaurantAccess(resource.data.organizationId, resource.data.restaurantId) &&
+                       hasRole(resource.data.organizationId, ['owner', 'admin', 'manager', 'waiter']);
+    }
+
+    match /businessProfiles/{profileId} {
+      allow read, update, delete: if isAuthenticated() && resource.data.get('userId', null) == request.auth.uid;
+      allow create:               if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+    }
+
+    // ─── CollectionGroup queries ─────────────────────────────────────────────
+    // Needed for collectionGroup(db, 'restaurants') and collectionGroup(db, 'menuItems')
+    // in the consumer space map/discover views.
+    match /{path=**}/restaurants/{restaurantId} {
+      allow read: if true;
+    }
+    match /{path=**}/menuItems/{itemId} {
+      allow read: if true;
+    }
+    // Needed for collectionGroup(db, 'memberships') — PINpad login lookup
+    match /{path=**}/memberships/{membershipId} {
+      allow read: if isAuthenticated();
+    }
+
+    // ─── Deny all other access ────────────────────────────────────────────────
     match /{document=**} {
-      // This rule allows anyone with your database reference to view, edit,
-      // and delete all data in your database. It is useful for getting
-      // started, but it is configured to expire after 30 days because it
-      // leaves your app open to attackers. At that time, all client
-      // requests to your database will be denied.
-      //
-      // Make sure to write security rules for your app before that time, or
-      // else all client requests to your database will be denied until you
-      // update your rules.
-      allow read, write: if request.time < timestamp.date(2025, 9, 11);
+      allow read, write: if false;
     }
   }
 }

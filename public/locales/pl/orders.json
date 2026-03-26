@@ -1,0 +1,22 @@
+{
+  "orders": {
+    "title": "POS / Zamówienia",
+    "mockup": "Mockup",
+    "open_tables": "Otwarte stoliki",
+    "in_kitchen": "W kuchni",
+    "ready_to_pickup": "Gotowe do odbioru",
+    "today_total": "Suma dzisiejsza",
+    "table": "Stolik",
+    "items": "Pozycje",
+    "status": "Status",
+    "total": "Suma",
+    "minutes": "Minuty",
+    "open": "Otwarte",
+    "kitchen": "W kuchni",
+    "ready": "Gotowe",
+    "billed": "Rozliczone",
+    "currency": "{{amount}} zł",
+    "no_access": "Brak dostępu do modułu zamówień.",
+    "pos_coming_soon": "Pełny moduł POS z obsługą stolików, podziałem rachunku i drukarką fiskalną — wkrótce."
+  }
+}

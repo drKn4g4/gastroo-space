@@ -1,0 +1,87 @@
+@startuml
+title gastroo-space — Architecture (high level)
+
+skinparam shadowing false
+skinparam componentStyle rectangle
+skinparam wrapWidth 220
+skinparam maxMessageSize 140
+
+actor "Restaurant user" as User
+
+rectangle "Client (Browser / PWA)" as Client {
+  [Next.js UI\n(src/app/[lang]/*)] as UI
+  [Firebase Client SDK\n(Auth/Firestore/Storage)\n(src/lib/firebase/config.ts)] as FBC
+}
+
+rectangle "Next.js App (Server)" as NextServer {
+  [App Router pages\n(src/app/**/page.tsx)] as Pages
+  [API routes\n(src/app/api/**/route.ts)] as ApiRoutes
+
+  package "Seed API" as SeedApi {
+    [POST /api/seed/upload] as SeedUpload
+    [POST /api/seed/import] as SeedImport
+    [GET /api/seed/export] as SeedExport
+    [GET /api/seed/list] as SeedList
+    [DELETE /api/seed/delete] as SeedDelete
+    [POST /api/seed/sync-drive] as SeedSync
+    [Auth guard\n(Bearer ID token\nor x-seed-admin-key)\n(src/app/api/seed/_lib/auth.ts)] as SeedAuth
+  }
+
+  package "Swagger" as Swagger {
+    [GET /api/swagger/seed\n(serves swagger-seed.yaml)] as SwaggerSpec
+    [/{lang}/swagger/seed\n(Swagger UI page)] as SwaggerUI
+  }
+
+  [Firebase Admin SDK\n(src/lib/firebase/admin.ts)] as FBA
+  [Google Drive API client\n(src/app/api/seed/_lib/drive.ts)] as DriveClient
+}
+
+cloud "Firebase (Google Cloud)" as Firebase {
+  database "Firestore" as Firestore
+  [Firebase Auth] as FBAuth
+  [Cloud Functions\n(functions/src/*.ts)] as Functions
+  [Cloud Storage] as Storage
+}
+
+cloud "Google APIs" as GoogleApis {
+  [Google Drive API] as DriveApi
+  [Google Calendar API] as CalApi
+  [Google Business Profile API] as GbpApi
+}
+
+User --> UI : uses
+UI --> Pages : HTTPS
+UI --> ApiRoutes : HTTPS (/api/*)
+
+UI --> FBC : sign-in, read/write
+FBC --> FBAuth : ID token / session
+FBC --> Firestore : client access\n(rules enforced)
+FBC --> Storage : uploads/downloads
+
+ApiRoutes --> SeedAuth : authorize
+SeedAuth --> FBAuth : verifyIdToken()
+
+SeedImport --> FBA : write docs (admin)
+SeedExport --> FBA : read docs (admin)
+FBA --> Firestore : admin access
+
+SeedUpload --> DriveClient : upload file
+SeedList --> DriveClient : list files
+SeedDelete --> DriveClient : delete file
+SeedSync --> DriveClient : list files
+DriveClient --> DriveApi : service account / ADC
+
+UI --> Functions : callable HTTPS\n(firebase/functions)
+Functions --> Firestore : admin access
+Functions --> DriveApi : OAuth2 per-user\n(tokens in Firestore)
+Functions --> CalApi : OAuth2 per-user
+Functions --> GbpApi : OAuth2 per-user
+
+SwaggerUI --> SwaggerSpec : fetch YAML
+
+note right of SeedApi
+  Seed endpoints live in Next.js\nand are protected by:\n- Authorization: Bearer <Firebase ID token>\n- OR x-seed-admin-key (fallback)\n\nSpec: swagger-seed.yaml
+end note
+
+@enduml
+

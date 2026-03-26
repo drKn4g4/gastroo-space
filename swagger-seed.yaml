@@ -1,0 +1,491 @@
+openapi: 3.0.3
+info:
+  title: Seed Management API
+  version: 1.0.0
+  description: |
+    API do zarządzania seedami danych (Google Drive + Firestore).
+    Endpointy odzwierciedlają aktualne implementacje w `src/app/api/seed/*.ts`.
+servers:
+  - url: /api/seed
+  - url: /api
+tags:
+  - name: seed
+    description: Operacje na seedach
+  - name: members
+    description: Operacje na członkach organizacji
+paths:
+  /upload:
+    post:
+      tags: [seed]
+      operationId: uploadSeed
+      summary: Upload seeda na Google Drive (multipart)
+      description: |
+        Wymaga autoryzacji Firebase Auth (ID token w `Authorization: Bearer ...`). Uploaduje plik `file` do folderu `GDRIVE_SEED_FOLDER_ID`.
+        Aktualnie endpoint zwraca tylko `{ id, name }` utworzonego pliku na Drive.
+      security:
+        - bearerAuth: []
+        - seedAdminKey: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Seed uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SeedUploadResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /import:
+    post:
+      tags: [seed]
+      operationId: importSeed
+      summary: Import seeda z Google Drive do Firestore
+      description: |
+        Wymaga autoryzacji Firebase Auth (ID token w `Authorization: Bearer ...`). Pobiera plik po `seedId` z Google Drive, parsuje JSON i zapisuje
+        dokumenty do Firestore dla wskazanych `collections`.
+        Jeśli `collections` nie podano, importowane są wszystkie kolekcje znalezione w pliku (`firestore` albo legacy flat payload).
+        Można też podać `profile` (`core|demo|integration`) oraz `mode` (`strict|best-effort`).
+      security:
+        - bearerAuth: []
+        - seedAdminKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SeedImportRequest'
+      responses:
+        '200':
+          description: Import OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SeedImportResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /export:
+    get:
+      tags: [seed]
+      operationId: exportSeed
+      summary: Eksport danych z Firestore do JSON
+      description: |
+        Zwraca `application/json` jako załącznik w formacie kompatybilnym z `/api/seed/import`:
+        `{ firestore: { <collectionPath>: [docs...] }, meta: { ... } }`.
+        Możesz podać wielokrotnie `collection` lub jednorazowo `collections` (CSV).
+        Bez parametrów eksportuje wszystkie kolekcje top-level wykryte aktualnie w Firestore.
+      security:
+        - bearerAuth: []
+        - seedAdminKey: []
+      parameters:
+        - in: query
+          name: collection
+          schema:
+            type: string
+          required: false
+          description: Nazwa/path kolekcji do eksportu (można podać wiele razy)
+        - in: query
+          name: collections
+          schema:
+            type: string
+          required: false
+          description: Lista kolekcji rozdzielona przecinkami (alternatywa dla wielu `collection`)
+        - in: query
+          name: profile
+          schema:
+            type: string
+            enum: [core, demo, integration]
+          required: false
+          description: Profil domyślnego zestawu kolekcji (używany gdy nie podano `collection(s)`)
+      responses:
+        '200':
+          description: Eksport OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SeedExportResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /list:
+    get:
+      tags: [seed]
+      operationId: listSeeds
+      summary: Lista seedów z Google Drive
+      description: |
+        Zwraca listę plików w folderze `GDRIVE_SEED_FOLDER_ID` (Drive API: `id`, `name`, `createdTime`, `size`, `mimeType`).
+      security:
+        - bearerAuth: []
+        - seedAdminKey: []
+      responses:
+        '200':
+          description: Lista seedów
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DriveFile'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /sync-drive:
+    post:
+      tags: [seed]
+      operationId: syncDriveSeeds
+      summary: Lista seedów z Google Drive (helper do sync)
+      description: |
+        Endpoint pomocniczy do synchronizacji seedów z Drive do Firestorage.
+        Aktualnie zwraca `{ ok, files }` (brak realnej logiki kopiowania w implementacji).
+      security:
+        - bearerAuth: []
+        - seedAdminKey: []
+      responses:
+        '200':
+          description: Synchronizacja OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyncDriveResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /delete:
+    delete:
+      tags: [seed]
+      operationId: deleteSeed
+      summary: Usuń seeda z Google Drive
+      security:
+        - bearerAuth: []
+        - seedAdminKey: []
+      parameters:
+        - in: query
+          name: seedId
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Usunięto
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OkResponse'
+        '400':
+          description: seedId required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /members/add:
+    post:
+      tags: [members]
+      operationId: addMember
+      summary: Dodaj członka organizacji
+      description: |
+        Tworzy lub podłącza użytkownika i zapisuje członkostwo organizacji.
+        Wymaga autoryzacji Bearer token oraz uprawnienia `members.manage`.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddMemberRequest'
+      responses:
+        '201':
+          description: Członek dodany
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddMemberResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    seedAdminKey:
+      type: apiKey
+      in: header
+      name: x-seed-admin-key
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required: [error]
+    OkResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+      required: [ok]
+    SeedUploadResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Google Drive file ID
+        name:
+          type: string
+          description: Nazwa pliku na Google Drive
+      required: [id, name]
+    SeedImportRequest:
+      type: object
+      properties:
+        seedId:
+          type: string
+          description: Google Drive file ID
+        collections:
+          type: array
+          items:
+            type: string
+          description: Lista kolekcji/pathów do importu (opcjonalna; domyślnie wszystkie kolekcje z pliku)
+        profile:
+          type: string
+          enum: [core, demo, integration]
+          description: Profil kolekcji używany, jeśli `collections` nie podano
+        mode:
+          type: string
+          enum: [strict, best-effort]
+          default: strict
+          description: Tryb importu (strict przerywa na błędzie; best-effort kontynuuje i raportuje)
+        overwrite:
+          type: boolean
+          default: false
+      required:
+        - seedId
+    SeedExportResponse:
+      type: object
+      properties:
+        firestore:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: object
+              additionalProperties: true
+        meta:
+          type: object
+          properties:
+            exportedAt:
+              type: string
+              format: date-time
+            collections:
+              type: array
+              items:
+                type: string
+            schemaVersion:
+              type: string
+            profile:
+              type: string
+              enum: [core, demo, integration]
+      required: [firestore]
+    SeedImportFailure:
+      type: object
+      properties:
+        collection:
+          type: string
+        id:
+          type: string
+          nullable: true
+        reason:
+          type: string
+      required: [collection, reason]
+    SeedImportSummary:
+      type: object
+      properties:
+        requestedCollections:
+          type: array
+          items:
+            type: string
+        processed:
+          type: integer
+        imported:
+          type: integer
+        skipped:
+          type: integer
+        failed:
+          type: integer
+      required: [requestedCollections, processed, imported, skipped, failed]
+    SeedImportResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        mode:
+          type: string
+          enum: [strict, best-effort]
+        profile:
+          type: string
+          nullable: true
+          enum: [core, demo, integration]
+        summary:
+          $ref: '#/components/schemas/SeedImportSummary'
+        failures:
+          type: array
+          items:
+            $ref: '#/components/schemas/SeedImportFailure'
+      required: [ok, mode, profile, summary, failures]
+    DriveFile:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        createdTime:
+          type: string
+          format: date-time
+        size:
+          type: string
+          description: Drive API zwraca `size` jako string (liczba bajtów)
+          example: "12345"
+        mimeType:
+          type: string
+      required: [id, name]
+    DriveFileShort:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        mimeType:
+          type: string
+      required: [id, name]
+    SyncDriveResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/DriveFileShort'
+      required: [ok, files]
+    AddMemberRequest:
+      type: object
+      required: [email, role]
+      properties:
+        orgId:
+          type: string
+          description: ID organizacji
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+          enum: [owner, admin, manager, waiter, chef, staff, supervisor, bartender, sommelier, kitchen, cashier, delivery]
+        restaurantIds:
+          type: array
+          items:
+            type: string
+        name:
+          type: string
+          minLength: 1
+    AddMemberResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+            userId:
+              type: string
+            email:
+              type: string
+              format: email
+            name:
+              type: string
+            role:
+              type: string
+            permissions:
+              type: array
+              items:
+                type: string
+            status:
+              type: string
+              enum: [active, invited, suspended]
+          required: [id, userId, email, role, permissions, status]
+      required: [success, data]

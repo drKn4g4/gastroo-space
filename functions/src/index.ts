@@ -1,32 +1,68 @@
 /**
- * Import function triggers from their respective submodules:
- *
- * import {onCall} from "firebase-functions/v2/https";
- * import {onDocumentWritten} from "firebase-functions/v2/firestore";
- *
- * See a full list of supported triggers at https://firebase.google.com/docs/functions
+ * Firebase Cloud Functions entry point — gastroo.space
  */
 
-import {setGlobalOptions} from "firebase-functions";
-//import {onRequest} from "firebase-functions/https";
-//import * as logger from "firebase-functions/logger";
+import { setGlobalOptions } from "firebase-functions/v2";
 
-// Start writing functions
-// https://firebase.google.com/docs/functions/typescript
+// ── Global options ─────────────────────────────────────────────────────────────
+setGlobalOptions({ maxInstances: 10,
+  region: "europe-west1"
+ });
 
-// For cost control, you can set the maximum number of containers that can be
-// running at the same time. This helps mitigate the impact of unexpected
-// traffic spikes by instead downgrading performance. This limit is a
-// per-function limit. You can override the limit for each function using the
-// `maxInstances` option in the function's options, e.g.
-// `onRequest({ maxInstances: 5 }, (req, res) => { ... })`.
-// NOTE: setGlobalOptions does not apply to functions using the v1 API. V1
-// functions should each use functions.runWith({ maxInstances: 10 }) instead.
-// In the v1 API, each function can only serve one request per container, so
-// this will be the maximum concurrent request count.
-setGlobalOptions({ maxInstances: 10 });
+// ── Google Drive Integration ──────────────────────────────────────────────────
+export {
+  driveConnect,
+  driveDisconnect,
+  driveDeleteFile,
+  driveListFiles,
+  driveGetFile,
+  driveGetStatus,
+  driveProvision,
+  driveUploadMenuImage,
+  driveUploadReportCsv,
+} from "./drive/index";
 
-// export const helloWorld = onRequest((request, response) => {
-//   logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
+// ── Google Business Profile Integration ──────────────────────────────────────
+export {
+  gbpConnect,
+  gbpEnsureLocationForOrganization,
+  gbpGetLocations,
+  gbpGetStatus,
+} from "./gbp";
+
+// ── Google Calendar Integration ───────────────────────────────────────────────
+export {
+  gcalGetStatus,
+  gcalConnect,
+  gcalDisconnect,
+  gcalSyncBookings,
+  gcalSyncShifts,
+  gcalSyncEvents,
+  gcalListEvents,
+} from "./calendar";
+
+// ── Google Workspace Integration (Sheets, Docs, Tasks) ───────────────────────
+export {
+  workspaceGetStatus,
+  workspaceConnect,
+  workspaceDisconnect,
+  workspaceCreateSheet,
+  workspaceSyncToSheet,
+  workspaceReadSheet,
+  workspaceGetTodos,
+  workspaceSyncTodos,
+  workspaceCreateDoc,
+} from "./workspace";
+
+// ── Discovery + Reactive Inventory MVP ───────────────────────────────────────
+export {
+  discoverySafeToEatCheck,
+  inventoryReactiveMenuSync,
+  inventoryReactiveMenuSyncLots,
+} from "./discoveryAndInventory";
+
+// ── Loyalty points ────────────────────────────────────────────────────────────
+export { addLoyaltyPoints } from "./loyalty";
+
+// ── Organization audit logs ──────────────────────────────────────────────────
+export { logOrganizationAccess, onFavoriteRestaurantAudit } from "./auditLogs";
