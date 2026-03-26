@@ -1,89 +1,70 @@
-# Settings for Backend (on Cloud Run).
-# See https://firebase.google.com/docs/app-hosting/configure#cloud-run
+# ── Runtime Configuration ──────────────────────────────────────────────────
+# Wymuszamy Node.js 22, aby uniknąć problemów z kompatybilnością Next.js 15+
+runtimeConfig:
+  nodeVersion: 22
+
+# ── Build Configuration ─────────────────────────────────────────────────────
+# Jawne wskazanie rootDir zapobiega błędom "Cannot find module" w Cloud Build
+buildConfig:
+  rootDir: /
+
+# ── Backend Settings (Cloud Run) ──────────────────────────────────────────
+# Zoptymalizowane zasoby dla dynamicznej aplikacji Gastroo
 runConfig:
-  minInstances: 1
-  maxInstances: 100
-  concurrency: 80
-  cpu: 2
-  memoryMiB: 1024
+  minInstances: 1      # Utrzymuje 1 instancję "ciepłą", by uniknąć Cold Startu
+  maxInstances: 10     # Ograniczamy do 10, aby kontrolować koszty na start
+  concurrency: 80      # Standard dla Next.js na Cloud Run
+  cpu: 1               # 1 CPU wystarczy dla Next.js, 2 to zazwyczaj overkill
+  memoryMiB: 1024      # 1GB RAM jest optymalne dla buildu Next.js
 
 # ── Environment Variables & Secrets ────────────────────────────────────────
-# Set actual secret values in Firebase App Hosting backend settings
-# (Firebase Console → App Hosting → Backend → Environment) or via Secret Manager.
-# Values listed here are non-sensitive defaults; secrets must be set externally.
-# See https://firebase.google.com/docs/app-hosting/configure
 env:
-  # ── Runtime defaults ────────────────────────────────────────────────────
+  # ── Core Environments ───────────────────────────────────────────────────
   - variable: NODE_ENV
     value: production
-    availability:
-      - BUILD
-      - RUNTIME
+    availability: [BUILD, RUNTIME]
 
   - variable: NEXT_PUBLIC_USE_EMULATORS
     value: "false"
-    availability:
-      - BUILD
-      - RUNTIME
+    availability: [BUILD, RUNTIME]
 
-  # Disable mock integrations in production
-  - variable: MOCK_INTEGRATIONS_ON_EMULATOR
-    value: "false"
-    availability:
-      - RUNTIME
-
-  - variable: MOCK_INTEGRATIONS
-    value: "false"
-    availability:
-      - RUNTIME
-
-  # ── Seed API auth ───────────────────────────────────────────────────────
-  - variable: SEED_REQUIRE_ADMIN_CLAIM
-    value: "true"
-    availability:
-      - RUNTIME
-
-  - variable: SEED_ADMIN_CLAIM
-    value: seedAdmin
-    availability:
-      - RUNTIME
-
-  # ── Feature flags ───────────────────────────────────────────────────────
+  # ── Feature Flags ───────────────────────────────────────────────────────
+  # Flagi dostępne podczas budowania (Static Site Generation potrzebuje ich)
   - variable: NEXT_PUBLIC_FEATURE_GOOGLE_CHAT
     value: "true"
-    availability:
-      - BUILD
-      - RUNTIME
+    availability: [BUILD, RUNTIME]
 
   - variable: NEXT_PUBLIC_FEATURE_GOOGLE_CALENDAR
     value: "true"
-    availability:
-      - BUILD
-      - RUNTIME
+    availability: [BUILD, RUNTIME]
 
   - variable: NEXT_PUBLIC_FEATURE_OFFLINE_QUEUE
     value: "true"
-    availability:
-      - BUILD
-      - RUNTIME
+    availability: [BUILD, RUNTIME]
 
   - variable: NEXT_PUBLIC_FEATURE_ADVANCED_FLOORPLAN
     value: "true"
-    availability:
-      - BUILD
-      - RUNTIME
+    availability: [BUILD, RUNTIME]
 
-  # ── Secrets (set via Firebase Console → App Hosting → Secrets or Secret Manager) ─
-  # Uncomment and reference Secret Manager secret names after creating them:
-  #
-  # - variable: SEED_ADMIN_KEY
-  #   secret: seed-admin-key
-  #
-  # - variable: GOOGLE_DRIVE_CLIENT_SECRET
-  #   secret: google-drive-client-secret
-  #
-  # - variable: GOOGLE_CALENDAR_CLIENT_SECRET
-  #   secret: google-calendar-client-secret
-  #
-  # - variable: GOOGLE_WORKSPACE_CLIENT_SECRET
-  #   secret: google-workspace-client-secret
+  # ── Mocking & Integration ───────────────────────────────────────────────
+  - variable: MOCK_INTEGRATIONS_ON_EMULATOR
+    value: "false"
+    availability: [RUNTIME]
+
+  - variable: MOCK_INTEGRATIONS
+    value: "false"
+    availability: [RUNTIME]
+
+  # ── Seed API Auth ───────────────────────────────────────────────────────
+  - variable: SEED_REQUIRE_ADMIN_CLAIM
+    value: "true"
+    availability: [RUNTIME]
+
+  - variable: SEED_ADMIN_CLAIM
+    value: seedAdmin
+    availability: [RUNTIME]
+
+# ── Secrets Note ──────────────────────────────────────────────────────────
+# Pamiętaj: SEED_ADMIN_KEY oraz GOOGLE_DRIVE_CLIENT_SECRET 
+# dodaj bezpośrednio w konsoli Firebase: 
+# App Hosting -> Backend -> Settings -> Environment Variables -> Add Secret
