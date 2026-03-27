@@ -20,7 +20,8 @@
       "Bash(find /Users/mmierzej/Desktop/code/gastroo-space/src/app/[lang]/components -name \"EmotionCache*\" -type f)",
       "Bash(npx playwright:*)",
       "Bash(node -e \":*)",
-      "Bash(bash scripts/start-dev.sh)"
+      "Bash(bash scripts/start-dev.sh)",
+      "Bash(find /Users/mmierzej/Desktop/code/gastroo-space/functions/src -name *.test.ts)"
     ]
   }
 }
