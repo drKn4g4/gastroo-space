@@ -67,4 +67,4 @@ env:
 
 # UWAGA: Jeśli Twój skrypt env.ts nadal krzyczy o GOOGLE_DRIVE_CLIENT_ID, 
 # mimo że flaga jest na false, będziesz musiał na chwilę 
-# zakomentować te pola w kodzie walidującym (zazwyczaj env.ts lub next.config.mjs).
+# zakomentować te pola w kodzie walidującym (zazwyczaj env.ts lub next.config.mjs)
