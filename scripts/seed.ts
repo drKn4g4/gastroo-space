@@ -906,6 +906,77 @@ async function seedEmulatorHelperCollections(now: Timestamp, uidsByEmail: Record
   console.log(`✅ Firestore: _seed helper docs (logins=${loginUsers.length}, restaurants=${restaurantRegistry.length})`);
 }
 
+/**
+ * Writes a _schema/collections document with the full Firestore collection tree.
+ * This makes the schema visible in Firebase Console even when collections are empty.
+ */
+async function seedSchemaMap(now: Timestamp) {
+  const schemaRef = db.collection('_schema');
+
+  await schemaRef.doc('collections').set({
+    type: 'schema-map',
+    version: '1.0',
+    note: 'Auto-generated collection tree. Each key is a collection path, value describes the document type and subcollections.',
+    tree: {
+      'users/{userId}': {
+        type: 'UserProfile',
+        subcollections: ['memberships', 'loyaltyPoints', 'loyaltyAccounts', 'favoriteRestaurants', 'favoriteMenuItems', 'cv'],
+      },
+      'users/{userId}/memberships/{orgId}': { type: 'Membership', fields: 'role, pin, permissions, restaurantIds, status' },
+      'users/{userId}/loyaltyPoints/{restaurantId}': { type: 'LoyaltyBalance', writtenBy: 'Cloud Function only' },
+      'users/{userId}/loyaltyAccounts/{orgId}': { type: 'LoyaltyAccount', writtenBy: 'Cloud Function only' },
+      'users/{userId}/favoriteRestaurants/{restaurantId}': { type: 'FavoriteRestaurant' },
+      'users/{userId}/favoriteMenuItems/{favoriteId}': { type: 'FavoriteMenuItem' },
+      'users/{userId}/cv/{entryId}': { type: 'CvEntry' },
+
+      'organizations/{orgId}': {
+        type: 'Organization',
+        subcollections: ['members', 'restaurants', 'integrations', 'settings', 'promotions', 'events', 'files', 'logs', 'invites', 'subscriptions', 'invoices'],
+      },
+      'organizations/{orgId}/members/{memberId}': { type: 'Member (legacy)' },
+      'organizations/{orgId}/restaurants/{restaurantId}': {
+        type: 'Restaurant',
+        subcollections: ['bookings', 'menuCategories', 'menuItems', 'tables', 'sections', 'shifts', 'timeEntries', 'chatMessages', 'todoTasks', 'incidents'],
+      },
+      'organizations/{orgId}/restaurants/{restaurantId}/bookings/{bookingId}': { type: 'Booking (restaurant-scoped)' },
+      'organizations/{orgId}/restaurants/{restaurantId}/menuCategories/{categoryId}': { type: 'MenuCategory' },
+      'organizations/{orgId}/restaurants/{restaurantId}/menuItems/{itemId}': { type: 'MenuItem' },
+      'organizations/{orgId}/restaurants/{restaurantId}/tables/{tableId}': { type: 'Table' },
+      'organizations/{orgId}/restaurants/{restaurantId}/sections/{sectionId}': { type: 'Section' },
+      'organizations/{orgId}/restaurants/{restaurantId}/shifts/{shiftId}': { type: 'Shift' },
+      'organizations/{orgId}/restaurants/{restaurantId}/timeEntries/{entryId}': { type: 'TimeEntry' },
+      'organizations/{orgId}/restaurants/{restaurantId}/chatMessages/{messageId}': { type: 'ChatMessage' },
+      'organizations/{orgId}/restaurants/{restaurantId}/todoTasks/{taskId}': { type: 'TodoTask' },
+      'organizations/{orgId}/restaurants/{restaurantId}/incidents/{incidentId}': { type: 'Incident' },
+      'organizations/{orgId}/integrations/{integrationId}': { type: 'Integration (Drive, Calendar, Workspace)' },
+      'organizations/{orgId}/settings/{settingId}': { type: 'OrgSetting' },
+      'organizations/{orgId}/promotions/{promotionId}': { type: 'Promotion' },
+      'organizations/{orgId}/events/{eventId}': { type: 'Event' },
+      'organizations/{orgId}/files/{fileId}': { type: 'BinaryAssetMeta (Drive refs)' },
+      'organizations/{orgId}/logs/{logId}': { type: 'AuditLogEntry' },
+      'organizations/{orgId}/invites/{inviteId}': { type: 'Invite' },
+      'organizations/{orgId}/subscriptions/{subId}': { type: 'Subscription' },
+      'organizations/{orgId}/invoices/{invoiceId}': { type: 'Invoice' },
+
+      'bookings/{bookingId}': { type: 'Booking (global, consumer-created)' },
+      'activeSessions/{sessionId}': { type: 'SlotZero dine-in session' },
+      'notifications/{notificationId}': { type: 'Notification (SOS, alerts)' },
+      'loyaltyCards/{cardId}': { type: 'LoyaltyCard' },
+      'allergens/{allergenId}': { type: 'Allergen (static reference)' },
+      'businessProfiles/{profileId}': { type: 'BusinessProfile (GBP-linked)' },
+    },
+    collectionGroupIndexes: {
+      restaurants: 'Consumer space: map/discover',
+      menuItems: 'Consumer space: search/browse',
+      memberships: 'PINpad login: PIN lookup across all users',
+    },
+    updatedAt: now,
+    createdAt: now,
+  }, { merge: true });
+
+  console.log('✅ Firestore: _schema/collections (schema map)');
+}
+
 async function seedAdditionalOrganizationsData(now: Timestamp, uidsByEmail: Record<string, string>, uidsByDisplayName: Record<string, string>) {
   for (const entry of ADDITIONAL_ORGANIZATIONS) {
     const orgRef = db.collection('organizations').doc(entry.organization.id);
@@ -1327,6 +1398,7 @@ async function main() {
   await seedEvents(now);
 
   await seedEmulatorHelperCollections(now, uidsByEmail);
+  await seedSchemaMap(now);
 
   if (profile === 'integration' || profile === 'all') {
     await seedIntegrationMetadata(now);
