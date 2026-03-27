@@ -1,5 +1,4 @@
 # gastroo-space
-no ciulu zloty
 Nowoczesna platforma SaaS dla gastronomii: panel wlasciciela, miniPOS oraz flow konsumencki, zbudowane na Next.js i Firebase.
 
 ## Szybki start
