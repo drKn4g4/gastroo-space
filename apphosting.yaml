@@ -15,12 +15,12 @@ runConfig:
 # ── Environment Variables & Secrets ────────────────────────────────────────
 env:
   - variable: NODE_ENV
-    value: prod
+    value: production
     availability: [BUILD, RUNTIME]
 
   # ── Firebase Config (Podstawowa konfiguracja klienta) ────────────────────
   - variable: NEXT_PUBLIC_FIREBASE_API_KEY
-    secret: NEXT_PUBLIC_FIREBASE_API_KEY
+    value: AIzaSyD35VjXyAgjalKrECvM-JCGyqVu4CBF-dg
     availability: [BUILD, RUNTIME]
 
   - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
@@ -36,11 +36,11 @@ env:
     availability: [BUILD, RUNTIME]
 
   - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
-    secret: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+    value: 880194074966
     availability: [BUILD, RUNTIME]
 
   - variable: NEXT_PUBLIC_FIREBASE_APP_ID
-    secret: NEXT_PUBLIC_FIREBASE_APP_ID
+    value: 1:880194074966:web:eb44133ad67d27f5a2fef7
     availability: [BUILD, RUNTIME]
 
   # ── FEATURE FLAGS (Wyłączamy to, czego jeszcze nie masz) ─────────────────
