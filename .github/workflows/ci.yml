@@ -1,4 +1,4 @@
-name: CI
+name: "\U0001F916 CI Pipeline"
 
 on:
   push:
@@ -6,48 +6,89 @@ on:
   pull_request:
 
 jobs:
-  # ── 1. Security ─────────────────────────────────────────────
+  # ══════════════════════════════════════════════════════════════
+  # 🔐 Step 1 — Security scan
+  # ══════════════════════════════════════════════════════════════
   secrets-scan:
-    name: "1. Secrets scan"
+    name: "🔐 1. Secrets scan"
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
-      - name: Gitleaks
+
+      - name: "🔍 Gitleaks — scan for leaked secrets"
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # ── 2. Lint ─────────────────────────────────────────────────
+  # ══════════════════════════════════════════════════════════════
+  # 📐 Step 2 — Code quality (lint)
+  # ══════════════════════════════════════════════════════════════
   lint-app:
-    name: "2a. Lint app"
+    name: "📐 2a. Lint app"
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+
+      - name: "📦 Setup Node.js"
+        uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
-      - run: npm run lint
+
+      - name: "📥 Install dependencies"
+        run: npm ci
+
+      - name: "🔎 ESLint — check app code"
+        run: npm run lint
 
   lint-functions:
-    name: "2b. Lint functions"
+    name: "📐 2b. Lint functions"
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+
+      - name: "📦 Setup Node.js"
+        uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-      - run: npm ci --prefix functions
-      - run: npm --prefix functions run lint
 
-  # ── 3. Test ─────────────────────────────────────────────────
+      - name: "📥 Install functions dependencies"
+        run: npm ci --prefix functions
+
+      - name: "🔎 ESLint — check functions code"
+        run: npm --prefix functions run lint
+
+  # ══════════════════════════════════════════════════════════════
+  # 🔬 Step 3 — TypeScript type check
+  # ══════════════════════════════════════════════════════════════
+  typecheck:
+    name: "🔬 3. TypeScript check"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: "📦 Setup Node.js"
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: "📥 Install dependencies"
+        run: npm ci
+
+      - name: "🧪 tsc --noEmit"
+        run: npx tsc -p tsconfig.json --noEmit
+
+  # ══════════════════════════════════════════════════════════════
+  # 🧪 Step 4 — Unit tests
+  # ══════════════════════════════════════════════════════════════
   unit-tests:
-    name: "3. Unit tests"
+    name: "🧪 4. Unit tests"
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
@@ -59,17 +100,25 @@ jobs:
       NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+
+      - name: "📦 Setup Node.js"
+        uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
-      - run: npm run test
 
-  # ── 4. Build ────────────────────────────────────────────────
+      - name: "📥 Install dependencies"
+        run: npm ci
+
+      - name: "🧪 Vitest — run unit tests"
+        run: npm run test
+
+  # ══════════════════════════════════════════════════════════════
+  # 🔨 Step 5 — Build verification
+  # ══════════════════════════════════════════════════════════════
   build-app:
-    name: "4a. Build app"
-    needs: [secrets-scan, lint-app, unit-tests]
+    name: "🔨 5a. Build app"
+    needs: [secrets-scan, lint-app, typecheck, unit-tests]
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
@@ -81,23 +130,64 @@ jobs:
       NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+
+      - name: "📦 Setup Node.js"
+        uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
-      - run: npm run build
+
+      - name: "📥 Install dependencies"
+        run: npm ci
+
+      - name: "🏗️ Next.js build"
+        run: npm run build
 
   build-functions:
-    name: "4b. Build functions"
+    name: "🔨 5b. Build functions"
     needs: [secrets-scan, lint-functions]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+
+      - name: "📦 Setup Node.js"
+        uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-      - run: npm ci --prefix functions
-      - run: npm --prefix functions run build
+
+      - name: "📥 Install functions dependencies"
+        run: npm ci --prefix functions
+
+      - name: "🏗️ TypeScript compile functions"
+        run: npm --prefix functions run build
+
+  # ══════════════════════════════════════════════════════════════
+  # ✅ Step 6 — CI Gate (all checks passed)
+  # ══════════════════════════════════════════════════════════════
+  ci-passed:
+    name: "✅ 6. All checks passed"
+    needs: [secrets-scan, lint-app, lint-functions, typecheck, unit-tests, build-app, build-functions]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: "🎉 CI Summary"
+        run: |
+          echo "╔══════════════════════════════════════════════╗"
+          echo "║         🍳 GASTROO CI PIPELINE 🍳           ║"
+          echo "╠══════════════════════════════════════════════╣"
+          echo "║  🔐 Secrets scan:    ${{ needs.secrets-scan.result }}"
+          echo "║  📐 Lint app:        ${{ needs.lint-app.result }}"
+          echo "║  📐 Lint functions:  ${{ needs.lint-functions.result }}"
+          echo "║  🔬 TypeScript:      ${{ needs.typecheck.result }}"
+          echo "║  🧪 Unit tests:      ${{ needs.unit-tests.result }}"
+          echo "║  🔨 Build app:       ${{ needs.build-app.result }}"
+          echo "║  🔨 Build functions: ${{ needs.build-functions.result }}"
+          echo "╚══════════════════════════════════════════════╝"
+
+      - name: "🚫 Fail if any job failed"
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: |
+          echo "❌ One or more CI jobs failed or were cancelled."
+          exit 1
