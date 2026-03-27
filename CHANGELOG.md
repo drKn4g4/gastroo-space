@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.14] - 2026-03-27
+
+### Changed
+- Automated deploy release for staging (gcp)
+- CI run: 15, commit: 82baa34
 ## [0.1.13] - 2026-03-27
 
 ### Changed
