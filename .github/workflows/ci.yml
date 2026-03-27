@@ -6,57 +6,98 @@ on:
   pull_request:
 
 jobs:
+  # ── 1. Security ─────────────────────────────────────────────
   secrets-scan:
+    name: "1. Secrets scan"
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 5
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Gitleaks scan
+      - uses: actions/checkout@v4
+      - name: Gitleaks
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  quality-and-build:
+  # ── 2. Lint ─────────────────────────────────────────────────
+  lint-app:
+    name: "2a. Lint app"
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+
+  lint-functions:
+    name: "2b. Lint functions"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --prefix functions
+      - run: npm --prefix functions run lint
+
+  # ── 3. Test ─────────────────────────────────────────────────
+  unit-tests:
+    name: "3. Unit tests"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
     env:
-      # Firebase client config needed for Next.js build (prerender)
       NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
       NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: gastroo-4f0a3.firebaseapp.com
       NEXT_PUBLIC_FIREBASE_PROJECT_ID: gastroo-4f0a3
       NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: gastroo-4f0a3.firebasestorage.app
       NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
       NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
+      - run: npm ci
+      - run: npm run test
 
-      - name: Install dependencies
-        run: npm ci
+  # ── 4. Build ────────────────────────────────────────────────
+  build-app:
+    name: "4a. Build app"
+    needs: [secrets-scan, lint-app, unit-tests]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
+      NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: gastroo-4f0a3.firebaseapp.com
+      NEXT_PUBLIC_FIREBASE_PROJECT_ID: gastroo-4f0a3
+      NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: gastroo-4f0a3.firebasestorage.app
+      NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
+      NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
 
-      - name: Install Functions dependencies
-        run: npm ci --prefix functions
-
-      - name: Lint
-        run: npm run lint
-
-      - name: Lint Functions
-        run: npm --prefix functions run lint
-
-      - name: Build Functions
-        run: npm --prefix functions run build
-
-      - name: Unit tests
-        run: npm run test
-
-      - name: Build app
-        run: npm run build
+  build-functions:
+    name: "4b. Build functions"
+    needs: [secrets-scan, lint-functions]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --prefix functions
+      - run: npm --prefix functions run build

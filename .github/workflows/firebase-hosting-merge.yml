@@ -2,8 +2,7 @@ name: CD Firebase GCP Deploy
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
     paths-ignore:
       - CHANGELOG.md
       - package.json
@@ -33,7 +32,9 @@ permissions:
   contents: write
 
 jobs:
+  # ── 1. Resolve target environment ──────────────────────────
   resolve-target:
+    name: "1. Resolve environment"
     runs-on: ubuntu-latest
     outputs:
       target_env: ${{ steps.resolve.outputs.target_env }}
@@ -49,8 +50,6 @@ jobs:
             TARGET_ENV="staging"
           fi
 
-          # Project ID is always the same — environment distinction is for
-          # App Hosting rollout targets and smoke test URLs.
           GCP_PROJECT="gastroo-4f0a3"
 
           if [[ "$TARGET_ENV" == "production" ]]; then
@@ -63,17 +62,17 @@ jobs:
           echo "gcp_project=$GCP_PROJECT" >> "$GITHUB_OUTPUT"
           echo "app_base_url=$APP_BASE_URL" >> "$GITHUB_OUTPUT"
 
-  release-version-and-changelog:
+  # ── 2. Release version bump ────────────────────────────────
+  release-version:
+    name: "2. Bump version"
     runs-on: ubuntu-latest
     needs: resolve-target
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
@@ -104,9 +103,11 @@ jobs:
           git commit -m "chore(release): bump to ${{ steps.release.outputs.version }} [skip ci]"
           git push
 
-  deploy-gcp:
+  # ── 3. Validate environment ────────────────────────────────
+  validate-env:
+    name: "3. Validate env vars"
     runs-on: ubuntu-latest
-    needs: [resolve-target, release-version-and-changelog]
+    needs: [resolve-target, release-version]
     environment: ${{ needs.resolve-target.outputs.target_env }}
     env:
       NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
@@ -115,9 +116,63 @@ jobs:
       NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${{ secrets.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
       NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
       NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
-      NEXT_PUBLIC_GOOGLE_DRIVE_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_GOOGLE_DRIVE_CLIENT_ID }}
-      NEXT_PUBLIC_GOOGLE_CALENDAR_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_GOOGLE_CALENDAR_CLIENT_ID }}
-      NEXT_PUBLIC_GOOGLE_WORKSPACE_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_GOOGLE_WORKSPACE_CLIENT_ID }}
+      SEED_ADMIN_KEY: ${{ secrets.SEED_ADMIN_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - run: npm run deploy:env:check
+
+  # ── 4. Build ───────────────────────────────────────────────
+  build:
+    name: "4. Build app + functions"
+    runs-on: ubuntu-latest
+    needs: [resolve-target, validate-env]
+    environment: ${{ needs.resolve-target.outputs.target_env }}
+    env:
+      NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
+      NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
+      NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
+      NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${{ secrets.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
+      NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
+      NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - run: npm ci --prefix functions
+      - name: Build functions
+        run: npm --prefix functions run build
+      - name: Build app
+        run: npm run build
+
+  # ── 5. Deploy ──────────────────────────────────────────────
+  deploy:
+    name: "5. Deploy to Firebase"
+    runs-on: ubuntu-latest
+    needs: [resolve-target, build]
+    environment: ${{ needs.resolve-target.outputs.target_env }}
+    env:
+      NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
+      NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
+      NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
+      NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${{ secrets.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
+      NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
+      NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
       GOOGLE_DRIVE_CLIENT_ID: ${{ secrets.GOOGLE_DRIVE_CLIENT_ID }}
       GOOGLE_DRIVE_CLIENT_SECRET: ${{ secrets.GOOGLE_DRIVE_CLIENT_SECRET }}
       GOOGLE_DRIVE_REDIRECT_URI: ${{ secrets.GOOGLE_DRIVE_REDIRECT_URI }}
@@ -129,31 +184,18 @@ jobs:
       GOOGLE_WORKSPACE_REDIRECT_URI: ${{ secrets.GOOGLE_WORKSPACE_REDIRECT_URI }}
       SEED_ADMIN_KEY: ${{ secrets.SEED_ADMIN_KEY }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           ref: main
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Install Functions dependencies
-        run: npm ci --prefix functions
-
-      - name: Validate deploy env
-        run: npm run deploy:env:check
-
-      - name: Build Functions
-        run: npm --prefix functions run build
-
-      - name: Build app
-        run: npm run build
+      - run: npm ci
+      - run: npm ci --prefix functions
+      - run: npm --prefix functions run build
 
       - name: Setup Firebase CLI
         run: npm i -g firebase-tools
@@ -163,7 +205,7 @@ jobs:
           echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_GASTROO_4F0A3 }}' > "$RUNNER_TEMP/firebase-sa.json"
           echo "GOOGLE_APPLICATION_CREDENTIALS=$RUNNER_TEMP/firebase-sa.json" >> "$GITHUB_ENV"
 
-      - name: Deploy Firebase resources + App Hosting
+      - name: Deploy Firebase resources
         shell: bash
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.skip_apphosting }}" == "true" ]]; then
@@ -172,8 +214,16 @@ jobs:
             bash scripts/deploy-firebase.sh --project "${{ needs.resolve-target.outputs.gcp_project }}"
           fi
 
-      - name: Post-deploy smoke tests
-        if: ${{ github.event_name != 'workflow_dispatch' || inputs.run_smoke == true }}
+  # ── 6. Smoke tests ─────────────────────────────────────────
+  smoke-tests:
+    name: "6. Post-deploy smoke"
+    runs-on: ubuntu-latest
+    needs: [resolve-target, deploy]
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.run_smoke == true }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run smoke tests
         shell: bash
         run: |
           if [[ -z "${{ needs.resolve-target.outputs.app_base_url }}" ]]; then

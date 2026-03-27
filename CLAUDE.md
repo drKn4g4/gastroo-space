@@ -133,7 +133,42 @@ Conventional Commits, opis 5-6 słów:
 
 ---
 
-## 8. Testy & NFR
+## 8. CI/CD Pipeline
+
+### CI (`ci.yml`) — push na main + PRki
+```
+1. Secrets scan     — Gitleaks (parallel)
+2a. Lint app        — eslint . (parallel)
+2b. Lint functions  — eslint functions/ (parallel)
+3. Unit tests       — vitest (parallel)
+4a. Build app       — next build (after 1+2a+3)
+4b. Build functions — tsc (after 1+2b)
+```
+
+### CD (`firebase-hosting-merge.yml`) — push na main (bez CHANGELOG/package.json)
+```
+1. Resolve environment — staging (auto) / production (manual dispatch)
+2. Bump version        — auto changelog + version bump
+3. Validate env vars   — scripts/validate-deploy-env.sh --strict
+4. Build               — functions + next.js app
+5. Deploy to Firebase  — functions, firestore rules, storage rules, remote config, app hosting
+6. Post-deploy smoke   — smoke tests (optional)
+```
+
+### GitHub Environments & Secrets
+- Secrets stored per-environment: `staging` and `production` in GitHub Environments
+- Required: `NEXT_PUBLIC_FIREBASE_*` (6 vars), `FIREBASE_SERVICE_ACCOUNT_GASTROO_4F0A3`
+- Service account needs IAM roles: Firebase Admin, Cloud Functions Developer, Service Account User, Service Usage Consumer
+- `.gitleaks.toml` allowlists `apphosting.yaml` (Firebase API key is public)
+
+### Lint setup (Next.js 16)
+- `next lint` removed in Next.js 16 — using `eslint .` directly
+- `functions/` has separate eslint config, linted via `npm --prefix functions run lint`
+- Test files (`*.test.ts`, `*.spec.ts`) excluded from tsconfig, have relaxed eslint rules
+
+---
+
+## 9. Testy & NFR
 
 - Testy: `npx vitest run` + contract testy: `npm run test:seed:contracts`
 - **Offline**: GET = NetworkFirst, POST = Background Sync Queue (Service Worker)
@@ -142,7 +177,7 @@ Conventional Commits, opis 5-6 słów:
 
 ---
 
-## 9. PR Checklist
+## 10. PR Checklist
 
 - [ ] Lint przechodzi
 - [ ] TypeScript kompiluje (`tsc --noEmit`)
@@ -155,7 +190,7 @@ Conventional Commits, opis 5-6 słów:
 
 ---
 
-## 10. Referencje
+## 11. Referencje
 
 | Dokument | Opis |
 |----------|------|
