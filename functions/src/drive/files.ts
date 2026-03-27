@@ -95,6 +95,7 @@ export const driveUploadReportCsv = onCall({ maxInstances: 5 }, async (request) 
     },
     media: { mimeType: 'text/csv', body: readable },
     fields: 'id, name',
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } as any);
 
   return { fileId: res.data.id, name: res.data.name };
@@ -130,6 +131,7 @@ export const driveUploadMenuImage = onCall({ maxInstances: 5 }, async (request) 
     },
     media: { mimeType, body: readable },
     fields: 'id, name',
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } as any);
 
   const fileId = res.data.id!;

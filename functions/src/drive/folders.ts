@@ -16,6 +16,7 @@ async function ensureNamedFolder(drive: drive_v3.Drive, parentId: string, name: 
   const folder = await drive.files.create({
     requestBody: { name, parentId: [parentId], mimeType: 'application/vnd.google-apps.folder' },
     fields: 'id',
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } as any);
   return folder.data.id!;
 }
@@ -34,6 +35,7 @@ async function ensureConfigFile(drive: drive_v3.Drive, rootFolderId: string, org
     requestBody: { name, parentId: [rootFolderId], mimeType: 'application/json' },
     media: { mimeType: 'application/json', body: content },
     fields: 'id',
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } as any);
   return file.data.id!;
 }
