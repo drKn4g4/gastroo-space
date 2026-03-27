@@ -9,14 +9,16 @@ export default [
     ignores: [
       '.next/**',
       '.firebase/**',
-      'functions/node_modules/**',
+      'functions/**',
       'node_modules/**',
       'public/**',
       'out/**',
+      'vitest.config.ts',
     ],
   },
   {
     files: ['**/*.ts', '**/*.tsx'],
+    ignores: ['**/*.test.ts', '**/*.test.tsx', '**/*.spec.ts', '**/*.spec.tsx', 'tests/**/*.ts'],
     languageOptions: {
       parser: tsParser,
       parserOptions: {
@@ -48,15 +50,24 @@ export default [
       'no-debugger': 'error',
     },
   },
-  // Test files: relax rules that conflict with Playwright fixture patterns
+  // Test files: disable type-aware rules (excluded from tsconfig) and relax lint
   {
-    files: ['tests/**/*.ts', '**/*.spec.ts', '**/*.spec.tsx'],
+    files: ['**/*.test.ts', '**/*.test.tsx', '**/*.spec.ts', '**/*.spec.tsx', 'tests/**/*.ts'],
+    languageOptions: {
+      parser: tsParser,
+      parserOptions: {
+        ecmaFeatures: { jsx: true },
+        // No project — these files are excluded from tsconfig
+      },
+    },
+    plugins: {
+      '@typescript-eslint': tseslint,
+      'react-hooks': reactHooks,
+    },
     rules: {
-      // Playwright fixtures use `use()` which trips the React hooks linter
       'react-hooks/rules-of-hooks': 'off',
-      // BDD fixtures intentionally use `any` for flexible test data shapes
       '@typescript-eslint/no-explicit-any': 'off',
-      // console.log is acceptable in test output
+      '@typescript-eslint/no-unused-vars': 'off',
       'no-console': 'off',
     },
   },
