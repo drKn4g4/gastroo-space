@@ -96,20 +96,10 @@ if [[ -z "$BACKEND_ID" ]]; then
   exit 0
 fi
 
-if firebase --help 2>/dev/null | grep -q "apphosting"; then
-  if firebase --help 2>/dev/null | grep -q "apphosting:backends:deploy"; then
-    log_stage "Deploy Firebase App Hosting"
-    run_stage_cmd "firebase apphosting:backends:deploy $BACKEND_ID" firebase apphosting:backends:deploy "${PROJECT_FLAG[@]}" "$BACKEND_ID"
-    log_ok "Deploy Firebase + App Hosting zakończony sukcesem."
-    exit 0
-  fi
+if firebase --help 2>/dev/null | grep -q "apphosting:rollouts:create"; then
+  log_stage "Deploy Firebase App Hosting"
+  run_stage_cmd "firebase apphosting:rollouts:create $BACKEND_ID" firebase apphosting:rollouts:create "${PROJECT_FLAG[@]}" -b main -f "$BACKEND_ID"
+  log_ok "Deploy Firebase + App Hosting zakończony sukcesem."
+else
+  log_warn "App Hosting CLI not available. Upgrade firebase-tools or deploy via GitHub push."
 fi
-
-cat <<EOF
-== App Hosting deploy skipped ==
-Detected apphosting.backendId="$BACKEND_ID" in firebase.json, but your firebase-tools CLI does not expose
-\`apphosting:backends:deploy\` (or it is disabled).
-
-If you're using Firebase App Hosting in prod, upgrade firebase-tools and deploy manually, e.g.:
-  firebase apphosting:backends:deploy ${PROJECT_FLAG[*]:-} $BACKEND_ID
-EOF
