@@ -15,7 +15,7 @@ runConfig:
 # ── Environment Variables & Secrets ────────────────────────────────────────
 env:
   - variable: NODE_ENV
-    value: production
+    value: prod
     availability: [BUILD, RUNTIME]
 
   # ── Firebase Config (Podstawowa konfiguracja klienta) ────────────────────
