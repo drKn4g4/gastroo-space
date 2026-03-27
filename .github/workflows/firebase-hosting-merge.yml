@@ -333,18 +333,13 @@ jobs:
       - name: "🌐 Deploy App Hosting rollout"
         shell: bash
         run: |
-          BACKEND_ID="$(node -e "const j=JSON.parse(require('fs').readFileSync('firebase.json','utf8')); process.stdout.write(j?.apphosting?.backendId||'');")"
-          if [[ -z "$BACKEND_ID" ]]; then
-            echo "⚠️ No apphosting.backendId in firebase.json — skipping"
+          BACKEND_ID="gastroo-be"
+          echo "🌐 Creating App Hosting rollout for backend: $BACKEND_ID"
+          firebase apphosting:rollouts:create --project "${{ needs.resolve-target.outputs.gcp_project }}" -b main -f "$BACKEND_ID" || {
+            echo "⚠️ apphosting:rollouts:create failed — App Hosting may deploy automatically via GitHub push"
             exit 0
-          fi
-          if firebase --help 2>/dev/null | grep -q "apphosting:rollouts:create"; then
-            echo "🌐 Creating App Hosting rollout for backend: $BACKEND_ID"
-            firebase apphosting:rollouts:create --project "${{ needs.resolve-target.outputs.gcp_project }}" -b main -f "$BACKEND_ID"
-            echo "✅ App Hosting rollout created"
-          else
-            echo "⚠️ App Hosting CLI not available — upgrade firebase-tools or deploy via GitHub push"
-          fi
+          }
+          echo "✅ App Hosting rollout created"
 
   # ══════════════════════════════════════════════════════════════
   # 🧪 Step 10 — Post-deploy smoke tests
