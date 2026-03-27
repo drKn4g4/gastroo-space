@@ -81,7 +81,7 @@ export interface MenuItem {
   tags?: string[];
   weight?: {
     value: number;
-    unit: 'g' | 'kg' | 'ml' | 'l';
+    unit: 'g' | 'kg' | 'ml' | 'l' | 'szt' | 'op' | 'por';
   };
   macros?: {
     calories?: number;

@@ -98,9 +98,24 @@ function OrdersPageContent() {
                       <Typography variant="caption" color="text.secondary">{o.itemName} x{o.quantity}</Typography>
                     </Box>
                   </Stack>
-                  <Stack alignItems="flex-end" spacing={0.25}>
+                  <Stack alignItems="flex-end" spacing={0.25} sx={{ minWidth: 0 }}>
                     <Chip label={st.label} size="small" color={st.color} sx={{ height: 20, fontSize: '0.68rem' }} />
-                    <Typography variant="caption" fontWeight={700} color="text.primary" sx={{ ml: 1 }}>{t('orders.currency', { amount: o.price * o.quantity })}</Typography>
+                    <Typography
+                      variant="caption"
+                      fontWeight={700}
+                      color="text.primary"
+                      sx={{
+                        ml: 1,
+                        maxWidth: { xs: '64px', sm: '90px' },
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        textAlign: 'right',
+                        display: 'block',
+                      }}
+                    >
+                      {t('orders.currency', { amount: o.price * o.quantity })}
+                    </Typography>
                   </Stack>
                 </Stack>
                 {o.status === 'preparing' && (

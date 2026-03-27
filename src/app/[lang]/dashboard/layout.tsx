@@ -14,9 +14,12 @@ import MenuIcon from '@mui/icons-material/Menu';
 import HomeIcon from '@mui/icons-material/Home';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
-import MenuBookIcon from '@mui/icons-material/MenuBook';
 import KitchenIcon from '@mui/icons-material/Kitchen';
-import TuneIcon from '@mui/icons-material/Tune';
+import TableBarIcon from '@mui/icons-material/TableBar';
+import RestaurantMenuIcon from '@mui/icons-material/RestaurantMenu';
+import GroupIcon from '@mui/icons-material/Group';
+import EventNoteIcon from '@mui/icons-material/EventNote';
+import InventoryIcon from '@mui/icons-material/Inventory2';
 
 // Admin icons
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -57,23 +60,29 @@ const ROLE_KEYS = ['owner', 'admin', 'manager', 'waiter', 'chef', 'staff'] as co
 
 // ─── Hooki nawigacji ─────────────────────────────────────────────────────────
 
-type NavItem = { label: string; icon: React.ReactNode; path: string };
+type NavItem = { label: string; icon: React.ReactNode; path: string; section?: 'ops' | 'mgmt' };
 
 function useNavItems(lang: string, t: (key: string) => string): NavItem[] {
   const perms = usePermissions();
   const p = `/${lang}/dashboard`;
   return [
-    { label: t('dashboard.nav.dashboard'), icon: <HomeIcon />,            path: p                     },
-    ...(perms.canViewBookings
-      ? [{ label: t('dashboard.nav.bookings'), icon: <CalendarMonthIcon />, path: `${p}?page=bookings` }] : []),
+    // ── Operations (daily work) ──
+    { label: t('dashboard.nav.dashboard'), icon: <HomeIcon />,              path: p                     },
     ...(perms.canViewMenu
-      ? [{ label: t('dashboard.nav.floor'),    icon: <MenuBookIcon />,      path: `${p}?page=sala`     }] : []),
+      ? [{ label: t('dashboard.nav.floor'),    icon: <TableBarIcon />,      path: `${p}/floorplan`     }] : []),
     ...(perms.canManageOrders
       ? [{ label: t('dashboard.nav.orders'),   icon: <ReceiptLongIcon />,   path: `${p}?page=orders`   }] : []),
+    ...(perms.canViewBookings
+      ? [{ label: t('dashboard.nav.bookings'), icon: <CalendarMonthIcon />, path: `${p}?page=bookings` }] : []),
     ...(perms.canViewKitchen
       ? [{ label: t('dashboard.nav.kitchen'),  icon: <KitchenIcon />,       path: `${p}?page=kitchen`  }] : []),
-    // Single "Zarządzanie" link — sub-pages are inside /management
-    { label: t('dashboard.nav.section_mgmt'), icon: <TuneIcon />, path: `${p}/menu` },
+    // ── Management ──
+    ...(perms.canViewMenu
+      ? [{ label: t('dashboard.nav.menu'),     icon: <RestaurantMenuIcon />, path: `${p}/menu`,      section: 'mgmt' as const }] : []),
+    { label: t('dashboard.nav.team'),          icon: <GroupIcon />,          path: `${p}/team`,      section: 'mgmt' as const },
+    { label: t('dashboard.nav.schedule'),      icon: <EventNoteIcon />,      path: `${p}/schedule`,  section: 'mgmt' as const },
+    ...(perms.canViewMenu
+      ? [{ label: t('dashboard.nav.inventory'),icon: <InventoryIcon />,      path: `${p}/inventory`, section: 'mgmt' as const }] : []),
   ];
 }
 
@@ -239,34 +248,42 @@ function AppDrawer({
       {/* ── Nawigacja główna ── */}
       <Box sx={{ flex: 1, overflowY: 'auto', py: 0.25 }}>
         <List dense disablePadding>
-          {navItems.map((item) => {
+          {navItems.map((item, idx) => {
             const active = isActive(item.path);
+            const prevItem = idx > 0 ? navItems[idx - 1] : null;
+            const showMgmtHeader = item.section === 'mgmt' && prevItem?.section !== 'mgmt';
             return (
-              <ListItemButton
-                key={item.path}
-                selected={active}
-                onClick={() => navigate(item.path)}
-                sx={{
-                  mx: 0.75,
-                  borderRadius: '10px',
-                  py: 0.5,
-                  minHeight: 32,
-                  '&.Mui-selected': {
-                    bgcolor: 'primary.main',
-                    color: 'primary.contrastText',
-                    '& .MuiListItemIcon-root': { color: 'primary.contrastText' },
-                    '&:hover': { bgcolor: 'primary.light' },
-                  },
-                }}
-              >
-                <ListItemIcon sx={{ minWidth: 28, '& .MuiSvgIcon-root': { fontSize: '1.1rem' }, color: active ? 'inherit' : 'text.secondary' }}>
-                  {item.icon}
-                </ListItemIcon>
-                <ListItemText
-                  primary={item.label}
-                  primaryTypographyProps={{ fontSize: '0.8rem', fontWeight: active ? 700 : 500 }}
-                />
-              </ListItemButton>
+              <React.Fragment key={item.path}>
+                {showMgmtHeader && (
+                  <Typography variant="overline" sx={{ px: 1.5, pt: 1, pb: 0.25, display: 'block', color: 'text.disabled' }}>
+                    {t('dashboard.nav.section_mgmt')}
+                  </Typography>
+                )}
+                <ListItemButton
+                  selected={active}
+                  onClick={() => navigate(item.path)}
+                  sx={{
+                    mx: 0.75,
+                    borderRadius: '10px',
+                    py: 0.5,
+                    minHeight: 32,
+                    '&.Mui-selected': {
+                      bgcolor: 'primary.main',
+                      color: 'primary.contrastText',
+                      '& .MuiListItemIcon-root': { color: 'primary.contrastText' },
+                      '&:hover': { bgcolor: 'primary.light' },
+                    },
+                  }}
+                >
+                  <ListItemIcon sx={{ minWidth: 28, '& .MuiSvgIcon-root': { fontSize: '1.1rem' }, color: active ? 'inherit' : 'text.secondary' }}>
+                    {item.icon}
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={item.label}
+                    primaryTypographyProps={{ fontSize: '0.8rem', fontWeight: active ? 700 : 500 }}
+                  />
+                </ListItemButton>
+              </React.Fragment>
             );
           })}
         </List>

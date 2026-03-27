@@ -26,9 +26,19 @@ import { createNodeLogger, installConsoleDecorators } from './helpers/node-logge
 installConsoleDecorators('seed');
 const log = createNodeLogger('seed');
 
-process.env.FIRESTORE_EMULATOR_HOST ??= '127.0.0.1:8080';
-process.env.FIREBASE_AUTH_EMULATOR_HOST ??= '127.0.0.1:9099';
-process.env.FIREBASE_STORAGE_EMULATOR_HOST ??= '127.0.0.1:9199';
+const SEED_TARGET = process.env.SEED_TARGET ?? 'emulator'; // 'emulator' | 'production'
+
+if (SEED_TARGET === 'emulator') {
+  process.env.FIRESTORE_EMULATOR_HOST ??= '127.0.0.1:8080';
+  process.env.FIREBASE_AUTH_EMULATOR_HOST ??= '127.0.0.1:9099';
+  process.env.FIREBASE_STORAGE_EMULATOR_HOST ??= '127.0.0.1:9199';
+} else {
+  // Production: clear emulator hosts to hit real Firestore/Auth
+  delete process.env.FIRESTORE_EMULATOR_HOST;
+  delete process.env.FIREBASE_AUTH_EMULATOR_HOST;
+  delete process.env.FIREBASE_STORAGE_EMULATOR_HOST;
+  console.warn('⚠️  SEED_TARGET=production — writing to LIVE Firebase!');
+}
 
 const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || process.env.FIREBASE_PROJECT_ID || UNIFIED_SEED_SOURCE.projectId;
 const storageBucket = process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || `${projectId}.appspot.com`;

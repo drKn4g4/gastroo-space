@@ -55,7 +55,7 @@ export interface SeedMenuCategory {
     tags?: string[];
     weight?: {
       value: number;
-      unit: 'g' | 'kg' | 'ml' | 'l';
+      unit: 'g' | 'kg' | 'ml' | 'l' | 'szt' | 'op' | 'por';
     };
     itemType?: 'ingredient' | 'product' | 'dish' | 'beverage' | 'cocktail';
     basePrice?: number;

@@ -123,7 +123,10 @@ function ItemPreviewPanel({
           {item.basePrepTime && <Chip icon={<TimerIcon sx={{ fontSize: `${vmin(14)} !important` }} />} label={`${item.basePrepTime} min`} size="small" variant="outlined" />}
         </Stack>
         <Typography variant="h6" fontWeight={700} lineHeight={1.2}>{itemName}</Typography>
-        <Typography variant="h6" color="primary.main" fontWeight={700} mt={0.25}>{item.price.toFixed(2)} PLN</Typography>
+        <Stack direction="row" spacing={1} alignItems="baseline">
+          <Typography variant="h6" color="primary.main" fontWeight={700} mt={0.25}>{item.price.toFixed(2)} PLN</Typography>
+          {item.weight && <Typography variant="body2" color="text.secondary">{item.weight.value} {item.weight.unit}</Typography>}
+        </Stack>
       </Box>
       {itemDescription && <Typography variant="body2" color="text.secondary">{itemDescription}</Typography>}
       {item.ingredientsList && (
@@ -372,10 +375,18 @@ function MenuPageContent() {
 
   // Item dialog
   const [itemDialog, setItemDialog] = useState<{ open: boolean; categoryId: string; item?: MenuItemType }>({ open: false, categoryId: '' });
+  type WeightUnit = 'g' | 'kg' | 'ml' | 'l' | 'szt' | 'op' | 'por';
+  const WEIGHT_UNITS: { value: WeightUnit; label: string }[] = [
+    { value: 'g', label: 'g' }, { value: 'kg', label: 'kg' },
+    { value: 'ml', label: 'ml' }, { value: 'l', label: 'L' },
+    { value: 'szt', label: 'szt.' }, { value: 'op', label: 'op.' }, { value: 'por', label: 'por.' },
+  ];
+
   const [itemForm, setItemForm] = useState({
     name: '', description: '', price: '', visible: true, image: '',
     itemType: '' as ItemTypeKey | '', categoryId: '',
     ingredientsList: '',
+    weightValue: '', weightUnit: 'g' as WeightUnit,
     macros: { calories: '', protein: '', fat: '', carbs: '', fiber: '' } as MacroForm,
     dietary: { vegetarian: false, vegan: false, glutenFree: false },
     allergens: [] as AllergenCode[],
@@ -544,7 +555,7 @@ function MenuPageContent() {
 
   // ── Item handlers ────────────────────────────────────────────────────────────
   const resetItemForm = (itemType: ItemTypeKey | '' = '', categoryId = '') =>
-    setItemForm({ name: '', description: '', price: '', visible: true, image: '', itemType: itemType as ItemTypeKey | '', categoryId, ingredientsList: '', macros: { calories: '', protein: '', fat: '', carbs: '', fiber: '' } as MacroForm, dietary: { vegetarian: false, vegan: false, glutenFree: false }, allergens: [] });
+    setItemForm({ name: '', description: '', price: '', visible: true, image: '', itemType: itemType as ItemTypeKey | '', categoryId, ingredientsList: '', weightValue: '', weightUnit: 'g' as WeightUnit, macros: { calories: '', protein: '', fat: '', carbs: '', fiber: '' } as MacroForm, dietary: { vegetarian: false, vegan: false, glutenFree: false }, allergens: [] });
 
   const openAddItem = (itemType: ItemTypeKey | '' = '', categoryId = '') => { setItemDialog({ open: true, categoryId }); resetItemForm(itemType, categoryId); };
 
@@ -555,6 +566,7 @@ function MenuPageContent() {
       visible: item.visible, image: item.image ?? '',
       itemType: (item.itemType as ItemTypeKey | '') ?? '', categoryId: item.categoryId,
       ingredientsList: item.ingredientsList ?? '',
+      weightValue: item.weight?.value?.toString() ?? '', weightUnit: (item.weight?.unit ?? 'g') as WeightUnit,
       macros: {
         calories: item.macros?.calories?.toString() ?? '', protein: item.macros?.protein?.toString() ?? '',
         fat: item.macros?.fat?.toString() ?? '', carbs: item.macros?.carbs?.toString() ?? '', fiber: item.macros?.fiber?.toString() ?? '',
@@ -593,8 +605,10 @@ function MenuPageContent() {
             : (itemDialog.item?.translations?.description ?? undefined),
         },
         price,
-        available: itemForm.visible, imageUrl: itemForm.image || null,
+        visible: itemForm.visible, available: itemForm.visible,
+        image: itemForm.image || null,
         itemType: itemForm.itemType || null, ingredientsList: itemForm.ingredientsList.trim() || null,
+        weight: itemForm.weightValue ? { value: parseFloat(itemForm.weightValue), unit: itemForm.weightUnit } : null,
         macros: hasMacros ? macros : null, categoryId: resolvedCatId,
         dietary: { vegetarian: itemForm.dietary.vegetarian || null, vegan: itemForm.dietary.vegan || null, glutenFree: itemForm.dietary.glutenFree || null },
         allergens: itemForm.allergens,
@@ -636,7 +650,7 @@ function MenuPageContent() {
       await addDoc(collection(db, `${restPath}/menuItems`), {
         name: `${item.name} ${t('menu.duplicate_suffix')}`, description: item.description ?? null,
         translations: item.translations ?? null,
-        price: item.price, visible: false, imageUrl: item.image ?? null,
+        price: item.price, visible: false, available: false, image: item.image ?? null,
         itemType: item.itemType ?? null, ingredientsList: item.ingredientsList ?? null,
         macros: item.macros ?? null, categoryId: item.categoryId,
         dietary: { vegetarian: item.dietary?.vegetarian ?? null, vegan: item.dietary?.vegan ?? null, glutenFree: item.dietary?.glutenFree ?? null },
@@ -649,7 +663,7 @@ function MenuPageContent() {
 
   const toggleAvailable = async (item: MenuItemType) => {
     if (!restPath) return;
-    try { await updateDoc(doc(db, `${restPath}/menuItems`, item.id), { available: !item.visible }); }
+    try { await updateDoc(doc(db, `${restPath}/menuItems`, item.id), { visible: !item.visible, available: !item.visible }); }
     catch { showNotification(t('menu.toggle_error'), 'error'); }
   };
 
@@ -990,6 +1004,27 @@ function MenuPageContent() {
                 slotProps={{ htmlInput: { min: 0, step: 0.01, 'data-testid': TEST_IDS.menu.itemPriceInput } }}
               />
             </Box>
+            {/* Weight */}
+            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 1.5 }}>
+              <TextField
+                label={t('menu.item_weight', { defaultValue: 'Gramatura / objętość' })}
+                type="number"
+                size="small"
+                value={itemForm.weightValue}
+                onChange={(e) => setItemForm((f) => ({ ...f, weightValue: e.target.value }))}
+                slotProps={{ htmlInput: { min: 0, step: 0.1 } }}
+              />
+              <FormControl size="small" sx={{ minWidth: 90 }}>
+                <InputLabel>{t('menu.item_weight_unit', { defaultValue: 'Jedn.' })}</InputLabel>
+                <Select
+                  value={itemForm.weightUnit}
+                  label={t('menu.item_weight_unit', { defaultValue: 'Jedn.' })}
+                  onChange={(e) => setItemForm((f) => ({ ...f, weightUnit: e.target.value as WeightUnit }))}
+                >
+                  {WEIGHT_UNITS.map((u) => <MuiMenuItem key={u.value} value={u.value}>{u.label}</MuiMenuItem>)}
+                </Select>
+              </FormControl>
+            </Box>
             {/* Description */}
             <TextField
               label={t('menu.item_desc')}
@@ -1054,7 +1089,7 @@ function MenuPageContent() {
                 <FormControlLabel control={<Switch checked={itemForm.dietary.vegetarian} onChange={(e) => setItemForm((f) => ({ ...f, dietary: { ...f.dietary, vegetarian: e.target.checked } }))} size="small" />} label={`🌿 ${t('menu.item_vegetarian')}`} />
                 <FormControlLabel control={<Switch checked={itemForm.dietary.vegan} onChange={(e) => setItemForm((f) => ({ ...f, dietary: { ...f.dietary, vegan: e.target.checked } }))} size="small" />} label={`🌱 ${t('menu.item_vegan')}`} />
                 <FormControlLabel control={<Switch checked={itemForm.dietary.glutenFree} onChange={(e) => setItemForm((f) => ({ ...f, dietary: { ...f.dietary, glutenFree: e.target.checked } }))} size="small" />} label={t('menu.item_gluten_free')} />
-                <FormControlLabel control={<Switch checked={itemForm.visible} onChange={(e) => setItemForm((f) => ({ ...f, available: e.target.checked }))} size="small" />} label={itemForm.visible ? t('menu.item_available') : t('menu.item_unavailable')} />
+                <FormControlLabel control={<Switch checked={itemForm.visible} onChange={(e) => setItemForm((f) => ({ ...f, visible: e.target.checked }))} size="small" />} label={itemForm.visible ? t('menu.item_available') : t('menu.item_unavailable')} />
               </Stack>
             </Box>
             {/* Photo (edit mode only) */}
