@@ -219,6 +219,7 @@ jobs:
     name: "🔥 6. Deploy Firestore rules"
     runs-on: ubuntu-latest
     needs: [resolve-target, validate-env]
+    environment: ${{ needs.resolve-target.outputs.target_env }}
     steps:
       - name: "📥 Checkout"
         uses: actions/checkout@v4
@@ -246,6 +247,7 @@ jobs:
     name: "🪣 7. Deploy Storage rules"
     runs-on: ubuntu-latest
     needs: [resolve-target, validate-env]
+    environment: ${{ needs.resolve-target.outputs.target_env }}
     steps:
       - name: "📥 Checkout"
         uses: actions/checkout@v4
@@ -273,6 +275,7 @@ jobs:
     name: "⚡ 8. Deploy Cloud Functions"
     runs-on: ubuntu-latest
     needs: [resolve-target, build-functions]
+    environment: ${{ needs.resolve-target.outputs.target_env }}
     steps:
       - name: "📥 Checkout"
         uses: actions/checkout@v4
