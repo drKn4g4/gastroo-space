@@ -1,35 +1,24 @@
 # ── Runtime Configuration ──────────────────────────────────────────────────
-# Wymuszamy Node.js 22, aby uniknąć problemów z kompatybilnością Next.js 15+
 runtimeConfig:
   nodeVersion: 22
 
 # ── Build Configuration ─────────────────────────────────────────────────────
-# Jawne wskazanie rootDir zapobiega błędom "Cannot find module" w Cloud Build
 buildConfig:
   rootDir: /
 
 # ── Backend Settings (Cloud Run) ──────────────────────────────────────────
-# Zoptymalizowane zasoby dla dynamicznej aplikacji Gastroo
 runConfig:
-  minInstances: 1      # Utrzymuje 1 instancję "ciepłą", by uniknąć Cold Startu
-  maxInstances: 10     # Ograniczamy do 10, aby kontrolować koszty na start
-  concurrency: 80      # Standard dla Next.js na Cloud Run
-  cpu: 1               # 1 CPU wystarczy dla Next.js, 2 to zazwyczaj overkill
-  memoryMiB: 1024      # 1GB RAM jest optymalne dla buildu Next.js
+  minInstances: 1
+  maxInstances: 10
+  memoryMiB: 1024
 
 # ── Environment Variables & Secrets ────────────────────────────────────────
 env:
-  # ── Core Environments ───────────────────────────────────────────────────
   - variable: NODE_ENV
     value: production
     availability: [BUILD, RUNTIME]
 
-  - variable: NEXT_PUBLIC_USE_EMULATORS
-    value: "false"
-    availability: [BUILD, RUNTIME]
-
-  # ── Firebase Client Config ─────────────────────────────────────────────
-  # Wymagane podczas BUILD (Next.js prerender) i RUNTIME (client SDK)
+  # ── Firebase Config (Podstawowa konfiguracja klienta) ────────────────────
   - variable: NEXT_PUBLIC_FIREBASE_API_KEY
     secret: NEXT_PUBLIC_FIREBASE_API_KEY
     availability: [BUILD, RUNTIME]
@@ -54,43 +43,28 @@ env:
     secret: NEXT_PUBLIC_FIREBASE_APP_ID
     availability: [BUILD, RUNTIME]
 
-  # ── Feature Flags ───────────────────────────────────────────────────────
-  # Flagi dostępne podczas budowania (Static Site Generation potrzebuje ich)
-  - variable: NEXT_PUBLIC_FEATURE_GOOGLE_CHAT
-    value: "true"
-    availability: [BUILD, RUNTIME]
-
+  # ── FEATURE FLAGS (Wyłączamy to, czego jeszcze nie masz) ─────────────────
   - variable: NEXT_PUBLIC_FEATURE_GOOGLE_CALENDAR
-    value: "true"
+    value: "false" # <--- WYŁĄCZONE
     availability: [BUILD, RUNTIME]
 
-  - variable: NEXT_PUBLIC_FEATURE_OFFLINE_QUEUE
-    value: "true"
+  - variable: NEXT_PUBLIC_FEATURE_GOOGLE_CHAT
+    value: "false" # <--- WYŁĄCZONE
     availability: [BUILD, RUNTIME]
 
   - variable: NEXT_PUBLIC_FEATURE_ADVANCED_FLOORPLAN
-    value: "true"
+    value: "false" # <--- WYŁĄCZONE (opcjonalnie)
     availability: [BUILD, RUNTIME]
 
-  # ── Mocking & Integration ───────────────────────────────────────────────
-  - variable: MOCK_INTEGRATIONS_ON_EMULATOR
+  # ── Mocks & Dev Flags ────────────────────────────────────────────────────
+  - variable: NEXT_PUBLIC_USE_EMULATORS
     value: "false"
-    availability: [RUNTIME]
-
+    availability: [BUILD, RUNTIME]
+    
   - variable: MOCK_INTEGRATIONS
-    value: "false"
+    value: "true" # Możesz włączyć mocki, żeby apka nie sypała błędami w UI
     availability: [RUNTIME]
 
-  # ── Seed API Auth ───────────────────────────────────────────────────────
-  - variable: SEED_REQUIRE_ADMIN_CLAIM
-    value: "true"
-    availability: [RUNTIME]
-
-  - variable: SEED_ADMIN_CLAIM
-    value: seedAdmin
-    availability: [RUNTIME]
-
-# ── Secrets Note ──────────────────────────────────────────────────────────
-# Pamiętaj: SEED_ADMIN_KEY oraz GOOGLE_DRIVE_CLIENT_SECRET 
-# dodaj bezpośrednio w konsoli Firebase: 
-# App Hosting -> Backend -> Settings -> Environment Variables -> Add Secret
+# UWAGA: Jeśli Twój skrypt env.ts nadal krzyczy o GOOGLE_DRIVE_CLIENT_ID, 
+# mimo że flaga jest na false, będziesz musiał na chwilę 
+# zakomentować te pola w kodzie walidującym (zazwyczaj env.ts lub next.config.mjs).
